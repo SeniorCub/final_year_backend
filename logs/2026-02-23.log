@@ -1,0 +1,226 @@
+[2026-02-23T12:03:54.754Z] [INFO] [Server Startup] Server started on port 9001
+[2026-02-23T12:03:54.755Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T12:03:54.755Z] [INFO] [Server Startup] URL: http://127.0.0.1:9001
+[2026-02-23T12:05:22.343Z] [ERROR] [Uncaught Exception] chatRoutes is not defined
+ReferenceError: chatRoutes is not defined
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:99:22)
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+[2026-02-23T12:05:22.442Z] [ERROR] [Uncaught Exception] chatRoutes is not defined
+ReferenceError: chatRoutes is not defined
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:99:22)
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+[2026-02-23T12:05:31.813Z] [ERROR] [Uncaught Exception] express.tson is not a function
+TypeError: express.tson is not a function
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:89:17)
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+[2026-02-23T12:05:32.030Z] [ERROR] [Uncaught Exception] express.tson is not a function
+TypeError: express.tson is not a function
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:89:17)
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+[2026-02-23T12:05:36.572Z] [ERROR] [Uncaught Exception] chatRoutes is not defined
+ReferenceError: chatRoutes is not defined
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:99:22)
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+[2026-02-23T12:05:36.701Z] [ERROR] [Uncaught Exception] chatRoutes is not defined
+ReferenceError: chatRoutes is not defined
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:99:22)
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+[2026-02-23T12:07:12.233Z] [INFO] [Server Startup] Server started on port 9001
+[2026-02-23T12:07:12.235Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T12:07:12.236Z] [INFO] [Server Startup] URL: http://127.0.0.1:9001
+[2026-02-23T12:07:12.303Z] [ERROR] [Uncaught Exception] listen EADDRINUSE: address already in use :::9001
+Error: listen EADDRINUSE: address already in use :::9001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:130:8)
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+[2026-02-23T12:07:25.824Z] [INFO] [Server Startup] Server started on port 9001
+[2026-02-23T12:07:25.827Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T12:07:25.828Z] [INFO] [Server Startup] URL: http://127.0.0.1:9001
+[2026-02-23T12:07:26.060Z] [ERROR] [Uncaught Exception] listen EADDRINUSE: address already in use :::9001
+Error: listen EADDRINUSE: address already in use :::9001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:130:8)
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+[2026-02-23T12:08:29.961Z] [INFO] [Server Startup] Server started on port 9001
+[2026-02-23T12:08:29.962Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T12:08:29.962Z] [INFO] [Server Startup] URL: http://127.0.0.1:9001
+[2026-02-23T12:08:29.998Z] [ERROR] [Uncaught Exception] listen EADDRINUSE: address already in use :::9001
+Error: listen EADDRINUSE: address already in use :::9001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:130:8)
+    at ModuleJob.run (node:internal/modules/esm/module_job:413:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+[2026-02-23T12:09:24.634Z] [ERROR] [Database] connect ECONNREFUSED 127.0.0.1:27017
+MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (/home/seniorcub/Web_Dev/final_year_project/backend/node_modules/mongoose/lib/connection.js:1169:11)
+    at NativeConnection.openUri (/home/seniorcub/Web_Dev/final_year_project/backend/node_modules/mongoose/lib/connection.js:1100:11)
+    at async connectDB (/home/seniorcub/Web_Dev/final_year_project/backend/config/database.ts:6:24)
+    at async <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:34:16)
+[2026-02-23T12:09:24.650Z] [ERROR] [Database] connect ECONNREFUSED 127.0.0.1:27017
+MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (/home/seniorcub/Web_Dev/final_year_project/backend/node_modules/mongoose/lib/connection.js:1169:11)
+    at NativeConnection.openUri (/home/seniorcub/Web_Dev/final_year_project/backend/node_modules/mongoose/lib/connection.js:1100:11)
+    at async connectDB (/home/seniorcub/Web_Dev/final_year_project/backend/config/database.ts:6:24)
+    at async <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:34:16)
+[2026-02-23T12:10:07.451Z] [ERROR] [Database] connect ECONNREFUSED 127.0.0.1:27017
+MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (/home/seniorcub/Web_Dev/final_year_project/backend/node_modules/mongoose/lib/connection.js:1169:11)
+    at NativeConnection.openUri (/home/seniorcub/Web_Dev/final_year_project/backend/node_modules/mongoose/lib/connection.js:1100:11)
+    at async connectDB (/home/seniorcub/Web_Dev/final_year_project/backend/config/database.ts:6:24)
+    at async <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:34:16)
+[2026-02-23T12:10:47.206Z] [ERROR] [Database] connect ECONNREFUSED 127.0.0.1:27017
+MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (/home/seniorcub/Web_Dev/final_year_project/backend/node_modules/mongoose/lib/connection.js:1169:11)
+    at NativeConnection.openUri (/home/seniorcub/Web_Dev/final_year_project/backend/node_modules/mongoose/lib/connection.js:1100:11)
+    at async connectDB (/home/seniorcub/Web_Dev/final_year_project/backend/config/database.ts:6:24)
+    at async <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:34:16)
+[2026-02-23T12:10:47.230Z] [INFO] [Server Startup] Server started on port 9001
+[2026-02-23T12:10:47.231Z] [INFO] [Server Startup] Database Host: null
+[2026-02-23T12:10:47.231Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T12:10:47.231Z] [INFO] [Server Startup] URL: http://127.0.0.1:9001
+[2026-02-23T12:10:55.629Z] [ERROR] [Database] connect ECONNREFUSED 127.0.0.1:27017
+MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (/home/seniorcub/Web_Dev/final_year_project/backend/node_modules/mongoose/lib/connection.js:1169:11)
+    at NativeConnection.openUri (/home/seniorcub/Web_Dev/final_year_project/backend/node_modules/mongoose/lib/connection.js:1100:11)
+    at async connectDB (/home/seniorcub/Web_Dev/final_year_project/backend/config/database.ts:6:24)
+    at async <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:34:16)
+[2026-02-23T12:10:55.653Z] [INFO] [Server Startup] Server started on port 9001
+[2026-02-23T12:10:55.653Z] [INFO] [Server Startup] Database Host: null
+[2026-02-23T12:10:55.653Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T12:10:55.653Z] [INFO] [Server Startup] URL: http://127.0.0.1:9001
+[2026-02-23T12:13:28.597Z] [ERROR] [Database] connect ECONNREFUSED 127.0.0.1:27017
+MongooseServerSelectionError: connect ECONNREFUSED 127.0.0.1:27017
+    at _handleConnectionErrors (/home/seniorcub/Web_Dev/final_year_project/backend/node_modules/mongoose/lib/connection.js:1169:11)
+    at NativeConnection.openUri (/home/seniorcub/Web_Dev/final_year_project/backend/node_modules/mongoose/lib/connection.js:1100:11)
+    at async connectDB (/home/seniorcub/Web_Dev/final_year_project/backend/config/database.ts:6:24)
+    at async <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:34:16)
+[2026-02-23T12:13:28.609Z] [ERROR] [Uncaught Exception] listen EADDRINUSE: address already in use :::9001
+Error: listen EADDRINUSE: address already in use :::9001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:131:8)
+[2026-02-23T12:27:25.156Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-01.uzt4ugt.mongodb.net
+[2026-02-23T12:27:25.176Z] [ERROR] [Uncaught Exception] listen EADDRINUSE: address already in use :::9001
+Error: listen EADDRINUSE: address already in use :::9001
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:131:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[2026-02-23T12:27:42.113Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-00.uzt4ugt.mongodb.net
+[2026-02-23T12:27:42.127Z] [INFO] [Server Startup] Server started on port 5601
+[2026-02-23T12:27:42.127Z] [INFO] [Server Startup] Database Host: ac-b7v27mp-shard-00-00.uzt4ugt.mongodb.net
+[2026-02-23T12:27:42.127Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T12:27:42.127Z] [INFO] [Server Startup] URL: http://127.0.0.1:5601
+[2026-02-23T12:28:19.138Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-00.uzt4ugt.mongodb.net
+[2026-02-23T12:28:19.158Z] [INFO] [Server Startup] Server started on port 5601
+[2026-02-23T12:28:19.158Z] [INFO] [Server Startup] Database Host: ac-b7v27mp-shard-00-00.uzt4ugt.mongodb.net
+[2026-02-23T12:28:19.158Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T12:28:19.158Z] [INFO] [Server Startup] URL: http://127.0.0.1:5601
+[2026-02-23T12:28:23.206Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-02.uzt4ugt.mongodb.net
+[2026-02-23T12:28:23.230Z] [ERROR] [Uncaught Exception] listen EADDRINUSE: address already in use :::5601
+Error: listen EADDRINUSE: address already in use :::5601
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:131:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[2026-02-23T12:28:45.936Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-02.uzt4ugt.mongodb.net
+[2026-02-23T12:28:45.956Z] [INFO] [Server Startup] Server started on port 5901
+[2026-02-23T12:28:45.956Z] [INFO] [Server Startup] Database Host: ac-b7v27mp-shard-00-02.uzt4ugt.mongodb.net
+[2026-02-23T12:28:45.957Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T12:28:45.957Z] [INFO] [Server Startup] URL: http://127.0.0.1:5901
+[2026-02-23T12:29:02.088Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-02.uzt4ugt.mongodb.net
+[2026-02-23T12:29:02.110Z] [INFO] [Server Startup] Server started on port 5901
+[2026-02-23T12:29:02.110Z] [INFO] [Server Startup] Database Host: ac-b7v27mp-shard-00-02.uzt4ugt.mongodb.net
+[2026-02-23T12:29:02.110Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T12:29:02.110Z] [INFO] [Server Startup] URL: http://127.0.0.1:5901
+[2026-02-23T12:29:03.793Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-02.uzt4ugt.mongodb.net
+[2026-02-23T12:29:03.832Z] [ERROR] [Uncaught Exception] listen EADDRINUSE: address already in use :::5901
+Error: listen EADDRINUSE: address already in use :::5901
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:131:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[2026-02-23T12:29:10.700Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-02.uzt4ugt.mongodb.net
+[2026-02-23T12:29:10.725Z] [INFO] [Server Startup] Server started on port 5901
+[2026-02-23T12:29:10.725Z] [INFO] [Server Startup] Database Host: ac-b7v27mp-shard-00-02.uzt4ugt.mongodb.net
+[2026-02-23T12:29:10.725Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T12:29:10.726Z] [INFO] [Server Startup] URL: http://127.0.0.1:5901
+[2026-02-23T12:29:11.078Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-00.uzt4ugt.mongodb.net
+[2026-02-23T12:29:11.111Z] [ERROR] [Uncaught Exception] listen EADDRINUSE: address already in use :::5901
+Error: listen EADDRINUSE: address already in use :::5901
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:131:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[2026-02-23T12:29:16.395Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-02.uzt4ugt.mongodb.net
+[2026-02-23T12:29:16.416Z] [INFO] [Server Startup] Server started on port 5901
+[2026-02-23T12:29:16.416Z] [INFO] [Server Startup] Database Host: ac-b7v27mp-shard-00-02.uzt4ugt.mongodb.net
+[2026-02-23T12:29:16.417Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T12:29:16.417Z] [INFO] [Server Startup] URL: http://127.0.0.1:5901
+[2026-02-23T12:29:16.550Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-00.uzt4ugt.mongodb.net
+[2026-02-23T12:29:16.580Z] [ERROR] [Uncaught Exception] listen EADDRINUSE: address already in use :::5901
+Error: listen EADDRINUSE: address already in use :::5901
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:131:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[2026-02-23T12:29:35.689Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-01.uzt4ugt.mongodb.net
+[2026-02-23T12:29:35.714Z] [INFO] [Server Startup] Server started on port 5901
+[2026-02-23T12:29:35.715Z] [INFO] [Server Startup] Database Host: ac-b7v27mp-shard-00-01.uzt4ugt.mongodb.net
+[2026-02-23T12:29:35.716Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T12:29:35.717Z] [INFO] [Server Startup] URL: http://127.0.0.1:5901
+[2026-02-23T12:29:35.965Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-01.uzt4ugt.mongodb.net
+[2026-02-23T12:29:35.985Z] [ERROR] [Uncaught Exception] listen EADDRINUSE: address already in use :::5901
+Error: listen EADDRINUSE: address already in use :::5901
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:131:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[2026-02-23T12:29:45.478Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-02.uzt4ugt.mongodb.net
+[2026-02-23T12:29:45.502Z] [ERROR] [Uncaught Exception] listen EADDRINUSE: address already in use :::5901
+Error: listen EADDRINUSE: address already in use :::5901
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at <anonymous> (/home/seniorcub/Web_Dev/final_year_project/backend/server.ts:131:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[2026-02-23T17:03:49.736Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-00.uzt4ugt.mongodb.net
+[2026-02-23T17:03:49.761Z] [INFO] [Server Startup] Server started on port 5901
+[2026-02-23T17:03:49.761Z] [INFO] [Server Startup] Database Host: ac-b7v27mp-shard-00-00.uzt4ugt.mongodb.net
+[2026-02-23T17:03:49.761Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T17:03:49.761Z] [INFO] [Server Startup] URL: http://127.0.0.1:5901
+[2026-02-23T17:03:55.575Z] [INFO] [Database] MongoDB Connected: ac-b7v27mp-shard-00-02.uzt4ugt.mongodb.net
+[2026-02-23T17:03:55.600Z] [INFO] [Server Startup] Server started on port 5901
+[2026-02-23T17:03:55.600Z] [INFO] [Server Startup] Database Host: ac-b7v27mp-shard-00-02.uzt4ugt.mongodb.net
+[2026-02-23T17:03:55.600Z] [INFO] [Server Startup] Environment: development
+[2026-02-23T17:03:55.600Z] [INFO] [Server Startup] URL: http://127.0.0.1:5901

@@ -1,0 +1,180 @@
+import Web3 from 'web3';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const ETH_RPC_URL = process.env.ETH_RPC_URL || 'https://sepolia.infura.io/v3/YOUR_INFURA_KEY';
+const ACCOUNT_CONTRACT_ADDRESS = process.env.ETH_ACCOUNT_CONTRACT_ADDRESS;
+const TRANSFER_CONTRACT_ADDRESS = process.env.ETH_TRANSFER_CONTRACT_ADDRESS;
+
+const ACCOUNT_ABI: any[] = [
+    {
+        "inputs": [],
+        "name": "createAccount",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "address", "name": "account", "type": "address" }],
+        "name": "getBalance",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+        "name": "isAccountCreated",
+        "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
+
+const TRANSFER_ABI: any[] = [
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "user", "type": "address" },
+            { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+        ],
+        "name": "Deposit",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "user", "type": "address" },
+            { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+        ],
+        "name": "Withdrawal",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            { "indexed": true, "internalType": "address", "name": "sender", "type": "address" },
+            { "indexed": true, "internalType": "address", "name": "recipient", "type": "address" },
+            { "indexed": false, "internalType": "uint256", "name": "amount", "type": "uint256" }
+        ],
+        "name": "P2PTransfer",
+        "type": "event"
+    },
+    {
+        "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }],
+        "name": "deposit",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }],
+        "name": "withdraw",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            { "internalType": "address", "name": "recipient", "type": "address" },
+            { "internalType": "uint256", "name": "amount", "type": "uint256" }
+        ],
+        "name": "transfer",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+];
+
+export class EthereumService {
+    private web3: Web3;
+
+    constructor() {
+        this.web3 = new Web3(ETH_RPC_URL);
+    }
+
+    async createWallet() {
+        const account = this.web3.eth.accounts.create();
+        return {
+            publicKey: account.address,
+            privateKey: account.privateKey
+        };
+    }
+
+    async getBalance(address: string): Promise<string> {
+        if (!ACCOUNT_CONTRACT_ADDRESS) throw new Error('Account contract address not configured');
+        const contract = new this.web3.eth.Contract(ACCOUNT_ABI, ACCOUNT_CONTRACT_ADDRESS);
+        const balance = await (contract.methods as any).getBalance(address).call();
+        return balance.toString(); // Simulated tokens might not use 18 decimals, but we'll return raw for now
+    }
+
+    async isAccountCreated(address: string): Promise<boolean> {
+        if (!ACCOUNT_CONTRACT_ADDRESS) throw new Error('Account contract address not configured');
+        const contract = new this.web3.eth.Contract(ACCOUNT_ABI, ACCOUNT_CONTRACT_ADDRESS);
+        return await (contract.methods as any).isAccountCreated(address).call();
+    }
+
+    async broadcastTransaction(signedTx: string): Promise<string> {
+        const receipt = await this.web3.eth.sendSignedTransaction(signedTx);
+        return receipt.transactionHash.toString();
+    }
+
+    async getTransactionHistory(address: string) {
+        if (!TRANSFER_CONTRACT_ADDRESS) throw new Error('Transfer contract address not configured');
+        const contract = new this.web3.eth.Contract(TRANSFER_ABI, TRANSFER_CONTRACT_ADDRESS);
+        
+        const [deposits, withdrawals, transfersSent, transfersReceived] = await Promise.all([
+            contract.getPastEvents('Deposit' as any, { filter: { user: address }, fromBlock: 0, toBlock: 'latest' }),
+            contract.getPastEvents('Withdrawal' as any, { filter: { user: address }, fromBlock: 0, toBlock: 'latest' }),
+            contract.getPastEvents('P2PTransfer' as any, { filter: { sender: address }, fromBlock: 0, toBlock: 'latest' }),
+            contract.getPastEvents('P2PTransfer' as any, { filter: { recipient: address }, fromBlock: 0, toBlock: 'latest' })
+        ]);
+
+        const history = [
+            ...(deposits as any[]).map(e => ({ type: 'DEPOSIT', amount: e.returnValues.amount.toString(), hash: e.transactionHash })),
+            ...(withdrawals as any[]).map(e => ({ type: 'WITHDRAWAL', amount: e.returnValues.amount.toString(), hash: e.transactionHash })),
+            ...(transfersSent as any[]).map(e => ({ type: 'TRANSFER_SENT', to: e.returnValues.recipient, amount: e.returnValues.amount.toString(), hash: e.transactionHash })),
+            ...(transfersReceived as any[]).map(e => ({ type: 'TRANSFER_RECEIVED', from: e.returnValues.sender, amount: e.returnValues.amount.toString(), hash: e.transactionHash }))
+        ];
+
+        return history.sort((a, b) => b.hash.localeCompare(a.hash)); // Simple sort by hash as proxy for time if blockNumber not used
+    }
+
+    async generateTransactionData(contractType: 'ACCOUNT' | 'TRANSFER', method: string, params: any[], from: string) {
+        const address = contractType === 'ACCOUNT' ? ACCOUNT_CONTRACT_ADDRESS : TRANSFER_CONTRACT_ADDRESS;
+        const abi = contractType === 'ACCOUNT' ? ACCOUNT_ABI : TRANSFER_ABI;
+        
+        if (!address) throw new Error(`${contractType} contract address not configured`);
+
+        const contract = new this.web3.eth.Contract(abi, address);
+        const data = (contract.methods as any)[method](...params).encodeABI();
+        
+        const [nonce, gasPrice, chainId] = await Promise.all([
+            this.web3.eth.getTransactionCount(from),
+            this.web3.eth.getGasPrice(),
+            this.web3.eth.getChainId()
+        ]);
+
+        return {
+            from,
+            to: address,
+            data,
+            nonce: nonce.toString(),
+            gasPrice: gasPrice.toString(),
+            gasLimit: '200000',
+            value: '0',
+            chainId: chainId.toString()
+        };
+    }
+
+    getTransferContract() {
+        if (!TRANSFER_CONTRACT_ADDRESS) throw new Error('Transfer contract address not configured');
+        return new this.web3.eth.Contract(TRANSFER_ABI, TRANSFER_CONTRACT_ADDRESS);
+    }
+
+    async getCurrentBlock() {
+        return Number(await this.web3.eth.getBlockNumber());
+    }
+}
+
+export const ethereumService = new EthereumService();

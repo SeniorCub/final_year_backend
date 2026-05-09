@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  account      Account?
+  wallet       Wallet?
+  ledgerEntries LedgerEntry[]
+  sentTransactions     Transaction[] @relation("SentTransactions")
+  receivedTransactions Transaction[] @relation("ReceivedTransactions")
+}
+
+model Account {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  accountNumber String   @unique
+  balance       Decimal  @default(0) @db.Decimal(20, 2)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Wallet {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id])
+  publicKey           String   @unique
+  encryptedPrivateKey String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+enum LedgerEntryType {
+  DEPOSIT
+  WITHDRAW
+  TRANSFER
+  BLOCKCHAIN_DEPOSIT
+  BLOCKCHAIN_WITHDRAW
+}
+
+enum LedgerEntryStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model LedgerEntry {
+  id        String            @id @default(uuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id])
+  type      LedgerEntryType
+  amount    Decimal           @db.Decimal(20, 2)
+  reference String            @unique
+  status    LedgerEntryStatus @default(COMPLETED)
+  metadata  Json?
+  createdAt DateTime          @default(now())
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model Transaction {
+  id         String            @id @default(uuid())
+  senderId   String
+  sender     User              @relation("SentTransactions", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User              @relation("ReceivedTransactions", fields: [receiverId], references: [id])
+  amount     Decimal           @db.Decimal(20, 2)
+  status     TransactionStatus @default(COMPLETED)
+  createdAt  DateTime          @default(now())
+}

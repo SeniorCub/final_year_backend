@@ -1,0 +1,347 @@
+{
+	"info": {
+		"_postman_id": "d-bank-api-collection",
+		"name": "D-Bank API (Ethereum Integration)",
+		"description": "Endpoints for the Decentralised Online Banking System (D-Bank).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register (Generates Wallet)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"securepassword\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"token\", jsonData.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"securepassword\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Wallet",
+			"item": [
+				{
+					"name": "Get Wallet Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wallet",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wallet"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Balance (On-Chain)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wallet/balance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wallet",
+								"balance"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Ethereum Banking (D-Bank)",
+			"item": [
+				{
+					"name": "1. Create Account (Generate Tx)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/transfer/eth/create-account",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transfer",
+								"eth",
+								"create-account"
+							]
+						},
+						"description": "Generates the transaction data to register the wallet in the Account.sol contract."
+					}
+				},
+				{
+					"name": "2. Deposit (Generate Tx)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": \"1000\" \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/transfer/eth/deposit",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transfer",
+								"eth",
+								"deposit"
+							]
+						},
+						"description": "Generates tx data for Transfer.deposit(amount)."
+					}
+				},
+				{
+					"name": "3. Withdraw (Generate Tx)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": \"500\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/transfer/eth/withdraw",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transfer",
+								"eth",
+								"withdraw"
+							]
+						},
+						"description": "Generates tx data for Transfer.withdraw(amount)."
+					}
+				},
+				{
+					"name": "4. P2P Transfer (Generate Tx)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"recipientAddress\": \"0xReceiverPublicAddressHere\",\n    \"amount\": \"200\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/transfer/eth/p2p",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transfer",
+								"eth",
+								"p2p"
+							]
+						}
+					}
+				},
+				{
+					"name": "5. Broadcast Signed Transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"signedTx\": \"0xYourSignedTransactionHexHere\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/transfer/eth/broadcast",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transfer",
+								"eth",
+								"broadcast"
+							]
+						},
+						"description": "Broadcasts the signed transaction hex to the Ethereum network."
+					}
+				}
+			]
+		},
+		{
+			"name": "Ledger & History",
+			"item": [
+				{
+					"name": "Get Blockchain History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ledger/blockchain",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ledger",
+								"blockchain"
+							]
+						},
+						"description": "Queries Transfer.sol events for a transparent transaction audit trail."
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5901",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
