@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
      res.status(200).json({ success: true, message: 'Register route' });
