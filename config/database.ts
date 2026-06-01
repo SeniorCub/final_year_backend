@@ -19,4 +19,3 @@ const connectDB = async (): Promise<string | null> => {
 };
 
 export default connectDB;
-
