@@ -16,11 +16,43 @@ dotenv.config();
 
 const fastify: FastifyInstance = Fastify({
      logger: true,
+     trustProxy: true,
 });
 
 // Middleware
+const allowedOrigins = (process.env.CORS_ORIGINS && process.env.CORS_ORIGINS.trim() !== '')
+     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()) 
+     : true;
+
 fastify.register(fastifyCors, {
-     origin: process.env.CORS_ORIGINS?.split(',') || true,
+     origin: (origin, cb) => {
+          // Allow all origins in development or if origin is not present (e.g., same-origin)
+          if (!origin || allowedOrigins === true) {
+               cb(null, true);
+               return;
+          }
+
+          try {
+               // Check if origin is localhost or 127.0.0.1
+               const url = new URL(origin);
+               if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+                    cb(null, true);
+                    return;
+               }
+          } catch (err) {
+               // If origin is not a valid URL, ignore and fall back to allowedOrigins check
+          }
+
+          if (allowedOrigins.includes(origin)) {
+               cb(null, true);
+               return;
+          }
+
+          cb(null, false);
+     },
+     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+     allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'X-Requested-With'],
+     credentials: true,
 });
 
 fastify.register(fastifyJwt, {
