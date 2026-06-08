@@ -46,7 +46,7 @@ export class BridgeService {
                          amount,
                          reference,
                          status: 'PENDING',
-                         metadata: { toWallet: wallet.publicKey },
+                         metadata: { toWallet: wallet.solPublicKey },
                     },
                });
 
@@ -54,7 +54,7 @@ export class BridgeService {
                try {
                     const signature = await solanaService.transferToken(
                          SYSTEM_WALLET_PRIVATE_KEY,
-                         wallet.publicKey,
+                         wallet.solPublicKey,
                          amount
                     );
 
@@ -84,7 +84,7 @@ export class BridgeService {
           const reference = `BCD-${Date.now()}-${signature.slice(0, 8)}`;
 
           const wallet = await prisma.wallet.findUnique({
-               where: { publicKey: walletAddress },
+               where: { solPublicKey: walletAddress },
                include: { user: true },
           });
 
@@ -129,8 +129,8 @@ export class BridgeService {
           const reference = `ETH-P2P-${hash.slice(0, 10)}`;
 
           const [sender, recipient] = await Promise.all([
-               prisma.wallet.findUnique({ where: { publicKey: senderWallet }, include: { user: true } }),
-               prisma.wallet.findUnique({ where: { publicKey: recipientWallet }, include: { user: true } })
+               prisma.wallet.findUnique({ where: { ethPublicKey: senderWallet }, include: { user: true } }),
+               prisma.wallet.findUnique({ where: { ethPublicKey: recipientWallet }, include: { user: true } })
           ]);
 
           return await prisma.$transaction(async (tx) => {
@@ -187,7 +187,7 @@ export class BridgeService {
           const ledgerType = type === 'DEPOSIT' ? LedgerEntryType.BLOCKCHAIN_DEPOSIT : LedgerEntryType.BLOCKCHAIN_WITHDRAW;
 
           const wallet = await prisma.wallet.findUnique({
-               where: { publicKey: walletAddress },
+               where: { ethPublicKey: walletAddress },
                include: { user: true },
           });
 

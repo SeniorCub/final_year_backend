@@ -15,7 +15,7 @@ export async function ledgerRoutes(fastify: FastifyInstance) {
           const userId = (request.user as any).userId;
           try {
                const wallet = await walletService.getWallet(userId);
-               const history = await ethereumService.getTransactionHistory(wallet.publicKey);
+               const history = await ethereumService.getTransactionHistory(wallet.ethPublicKey);
                return history;
           } catch (error: any) {
                return reply.code(400).send({ error: error.message });

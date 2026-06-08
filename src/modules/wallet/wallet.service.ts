@@ -13,15 +13,21 @@ export class WalletService {
                return existingWallet;
           }
 
-          // Create Ethereum Wallet
-          const { publicKey, privateKey } = await ethereumService.createWallet();
-          const encryptedPrivateKey = encrypt(privateKey);
+          // 1. Create Ethereum Wallet
+          const eth = await ethereumService.createWallet();
+          const encryptedEthPrivateKey = encrypt(eth.privateKey);
+
+          // 2. Create Solana Wallet
+          const sol = await solanaService.createWallet();
+          const encryptedSolPrivateKey = encrypt(sol.privateKey);
 
           const wallet = await prisma.wallet.create({
                data: {
                     userId,
-                    publicKey,
-                    encryptedPrivateKey,
+                    ethPublicKey: eth.publicKey,
+                    encryptedEthPrivateKey,
+                    solPublicKey: sol.publicKey,
+                    encryptedSolPrivateKey,
                },
           });
 
@@ -42,17 +48,25 @@ export class WalletService {
 
      async getBalance(userId: string) {
           const wallet = await this.getWallet(userId);
-          const ethBalance = await ethereumService.getBalance(wallet.publicKey);
+          const ethBalance = await ethereumService.getBalance(wallet.ethPublicKey);
+          const solBalance = await solanaService.getTokenBalance(wallet.solPublicKey);
           
           return {
-               publicKey: wallet.publicKey,
+               ethPublicKey: wallet.ethPublicKey,
+               solPublicKey: wallet.solPublicKey,
                eth: ethBalance,
+               sol: solBalance,
           };
      }
 
-     async getDecryptedPrivateKey(userId: string) {
+     async getDecryptedEthPrivateKey(userId: string) {
           const wallet = await this.getWallet(userId);
-          return decrypt(wallet.encryptedPrivateKey);
+          return decrypt(wallet.encryptedEthPrivateKey);
+     }
+
+     async getDecryptedSolPrivateKey(userId: string) {
+          const wallet = await this.getWallet(userId);
+          return decrypt(wallet.encryptedSolPrivateKey);
      }
 }
 

@@ -32,13 +32,15 @@ model Account {
 }
 
 model Wallet {
-  id                  String   @id @default(uuid())
-  userId              String   @unique
-  user                User     @relation(fields: [userId], references: [id])
-  publicKey           String   @unique
-  encryptedPrivateKey String
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                      String   @id @default(uuid())
+  userId                  String   @unique
+  user                    User     @relation(fields: [userId], references: [id])
+  ethPublicKey            String   @unique
+  encryptedEthPrivateKey  String
+  solPublicKey            String   @unique
+  encryptedSolPrivateKey  String
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 }
 
 enum LedgerEntryType {

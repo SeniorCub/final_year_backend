@@ -34,7 +34,7 @@ export async function transferRoutes(fastify: FastifyInstance) {
           let fromAddress = body.fromAddress;
           if (!fromAddress) {
                const wallet = await walletService.getWallet(userId);
-               fromAddress = wallet.publicKey;
+               fromAddress = wallet.ethPublicKey;
           }
 
           try {
@@ -58,7 +58,7 @@ export async function transferRoutes(fastify: FastifyInstance) {
           let fromAddress = providedAddress;
           if (!fromAddress) {
                const wallet = await walletService.getWallet(userId);
-               fromAddress = wallet.publicKey;
+               fromAddress = wallet.ethPublicKey;
           }
 
           try {
@@ -82,7 +82,7 @@ export async function transferRoutes(fastify: FastifyInstance) {
           let fromAddress = providedAddress;
           if (!fromAddress) {
                const wallet = await walletService.getWallet(userId);
-               fromAddress = wallet.publicKey;
+               fromAddress = wallet.ethPublicKey;
           }
 
           try {
@@ -106,7 +106,7 @@ export async function transferRoutes(fastify: FastifyInstance) {
           let fromAddress = providedAddress;
           if (!fromAddress) {
                const wallet = await walletService.getWallet(userId);
-               fromAddress = wallet.publicKey;
+               fromAddress = wallet.ethPublicKey;
           }
 
           try {
