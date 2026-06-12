@@ -1,6 +1,10 @@
 import Fastify, { FastifyInstance } from 'fastify';
 import fastifyJwt from '@fastify/jwt';
 import fastifyCors from '@fastify/cors';
+import fastifyStatic from '@fastify/static';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { userRoutes } from './modules/user/user.routes.js';
 import { accountRoutes } from './modules/account/account.routes.js';
@@ -14,45 +18,26 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const fastify: FastifyInstance = Fastify({
      logger: true,
      trustProxy: true,
+     ignoreTrailingSlash: true,
 });
 
 // Middleware
-const allowedOrigins = (process.env.CORS_ORIGINS && process.env.CORS_ORIGINS.trim() !== '')
-     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()) 
-     : true;
-
 fastify.register(fastifyCors, {
-     origin: (origin, cb) => {
-          // Allow all origins in development or if origin is not present (e.g., same-origin)
-          if (!origin || allowedOrigins === true) {
-               cb(null, true);
-               return;
-          }
-
-          try {
-               // Check if origin is localhost or 127.0.0.1
-               const url = new URL(origin);
-               if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
-                    cb(null, true);
-                    return;
-               }
-          } catch (err) {
-               // If origin is not a valid URL, ignore and fall back to allowedOrigins check
-          }
-
-          if (allowedOrigins.includes(origin)) {
-               cb(null, true);
-               return;
-          }
-
-          cb(null, false);
-     },
+     origin: true,
      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
      allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'Accept', 'X-Requested-With'],
      credentials: true,
+});
+
+fastify.register(fastifyStatic, {
+     root: path.join(__dirname, '../uploads'),
+     prefix: '/uploads/',
 });
 
 fastify.register(fastifyJwt, {
@@ -93,26 +78,29 @@ fastify.get('/', async () => {
           description: 'Non-custodial, peer-to-peer banking platform built on Ethereum.',
           status: 'online',
           endpoints: {
-               auth: '/auth',
-               wallet: '/wallet',
-               transfer: '/transfer',
-               ledger: '/ledger',
-               health: '/health'
+               auth: '/api/auth',
+               user: '/api/user',
+               account: '/api/account',
+               wallet: '/api/wallet',
+               transfer: '/api/transfer',
+               bridge: '/api/bridge',
+               ledger: '/api/ledger',
+               health: '/api/health'
           }
      };
 });
 
-fastify.register(authRoutes, { prefix: '/auth' });
-fastify.register(userRoutes, { prefix: '/user' });
-fastify.register(accountRoutes, { prefix: '/account' });
-fastify.register(walletRoutes, { prefix: '/wallet' });
-fastify.register(transferRoutes, { prefix: '/transfer' });
-fastify.register(bridgeRoutes, { prefix: '/bridge' });
-fastify.register(ledgerRoutes, { prefix: '/ledger' });
-fastify.register(adminRoutes, { prefix: '/admin' });
+fastify.register(authRoutes, { prefix: '/api/auth' });
+fastify.register(userRoutes, { prefix: '/api/user' });
+fastify.register(accountRoutes, { prefix: '/api/account' });
+fastify.register(walletRoutes, { prefix: '/api/wallet' });
+fastify.register(transferRoutes, { prefix: '/api/transfer' });
+fastify.register(bridgeRoutes, { prefix: '/api/bridge' });
+fastify.register(ledgerRoutes, { prefix: '/api/ledger' });
+fastify.register(adminRoutes, { prefix: '/api/admin' });
 
 // Health Check
-fastify.get('/health', async () => {
+fastify.get('/api/health', async () => {
      return { status: 'healthy', timestamp: new Date() };
 });
 
