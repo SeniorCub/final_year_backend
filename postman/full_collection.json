@@ -1,0 +1,573 @@
+{
+	"info": {
+		"_postman_id": "d-bank-full-api-collection",
+		"name": "D-Bank Full API (Omnichannel Banking)",
+		"description": "Comprehensive collection for D-Bank: Auth, Internal Banking, Solana Bridge, and Ethereum Smart Contract Integration.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"securepassword\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"if (jsonData.token) {",
+									"    pm.environment.set(\"token\", jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"securepassword\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user",
+								"me"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Internal Banking",
+			"item": [
+				{
+					"name": "Get Account Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/account",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Internal Balance",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/account/balance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account",
+								"balance"
+							]
+						}
+					}
+				},
+				{
+					"name": "Deposit Funds (Internal)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 1000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/account/deposit",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"account",
+								"deposit"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Wallet & Blockchain Info",
+			"item": [
+				{
+					"name": "Get System Wallet Info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wallet",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wallet"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get On-Chain Balance",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/wallet/balance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wallet",
+								"balance"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Ethereum Banking (Smart Contract)",
+			"item": [
+				{
+					"name": "1. Create Account (Generate Tx)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/transfer/eth/create-account",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transfer",
+								"eth",
+								"create-account"
+							]
+						}
+					}
+				},
+				{
+					"name": "2. Deposit to Contract (Generate Tx)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": \"500\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/transfer/eth/deposit",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transfer",
+								"eth",
+								"deposit"
+							]
+						}
+					}
+				},
+				{
+					"name": "3. Withdraw from Contract (Generate Tx)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": \"200\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/transfer/eth/withdraw",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transfer",
+								"eth",
+								"withdraw"
+							]
+						}
+					}
+				},
+				{
+					"name": "4. P2P Transfer (Generate Tx)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"recipientAddress\": \"0xReceiverAddressHere\",\n    \"amount\": \"100\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/transfer/eth/p2p",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transfer",
+								"eth",
+								"p2p"
+							]
+						}
+					}
+				},
+				{
+					"name": "5. Broadcast Signed Transaction",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"signedTx\": \"0xYourSignedTransactionHexHere\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/transfer/eth/broadcast",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"transfer",
+								"eth",
+								"broadcast"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Solana Bridge (cNGN)",
+			"item": [
+				{
+					"name": "Get Bridge Config",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/bridge/config",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bridge",
+								"config"
+							]
+						}
+					}
+				},
+				{
+					"name": "Withdraw to Solana",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 100\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bridge/withdraw",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bridge",
+								"withdraw"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Ledger & History",
+			"item": [
+				{
+					"name": "Get Unified Ledger",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ledger",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ledger"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Blockchain Audit Trail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ledger/blockchain",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ledger",
+								"blockchain"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "7. Admin Panel",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"users"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get All Ledger Entries",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/ledger",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"admin",
+								"ledger"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5901",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

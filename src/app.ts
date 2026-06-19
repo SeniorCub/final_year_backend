@@ -90,16 +90,22 @@ fastify.get('/', async () => {
      };
 });
 
-fastify.register(authRoutes, { prefix: '/api/auth' });
-fastify.register(userRoutes, { prefix: '/api/user' });
-fastify.register(accountRoutes, { prefix: '/api/account' });
-fastify.register(walletRoutes, { prefix: '/api/wallet' });
-fastify.register(transferRoutes, { prefix: '/api/transfer' });
-fastify.register(bridgeRoutes, { prefix: '/api/bridge' });
-fastify.register(ledgerRoutes, { prefix: '/api/ledger' });
-fastify.register(adminRoutes, { prefix: '/api/admin' });
+// Routes (registered under both with and without /api prefix to support all scripts, docs, and Postman collection)
+for (const prefix of ['', '/api']) {
+     fastify.register(authRoutes, { prefix: `${prefix}/auth` });
+     fastify.register(userRoutes, { prefix: `${prefix}/user` });
+     fastify.register(accountRoutes, { prefix: `${prefix}/account` });
+     fastify.register(walletRoutes, { prefix: `${prefix}/wallet` });
+     fastify.register(transferRoutes, { prefix: `${prefix}/transfer` });
+     fastify.register(bridgeRoutes, { prefix: `${prefix}/bridge` });
+     fastify.register(ledgerRoutes, { prefix: `${prefix}/ledger` });
+     fastify.register(adminRoutes, { prefix: `${prefix}/admin` });
+}
 
 // Health Check
+fastify.get('/health', async () => {
+     return { status: 'healthy', timestamp: new Date() };
+});
 fastify.get('/api/health', async () => {
      return { status: 'healthy', timestamp: new Date() };
 });

@@ -11,6 +11,12 @@ import { dirname } from 'path';
 import connectDB from './config/database.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import accountRoutes from './routes/accountRoutes.js';
+import walletRoutes from './routes/walletRoutes.js';
+import transferRoutes from './routes/transferRoutes.js';
+import bridgeRoutes from './routes/bridgeRoutes.js';
+import ledgerRoutes from './routes/ledgerRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import socketHandler from './socket/socketHandler.js';
 import errorHandler from './middleware/errorHandler.js';
 import { logError, logInfo, logWarn } from './helpers/logger.js';
@@ -96,8 +102,18 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
+// Register all routes with and without /api prefix
+for (const prefix of ['', '/api']) {
+     app.use(`${prefix}/auth`, authRoutes);
+     app.use(`${prefix}/user`, userRoutes);
+     app.use(`${prefix}/users`, userRoutes);
+     app.use(`${prefix}/account`, accountRoutes);
+     app.use(`${prefix}/wallet`, walletRoutes);
+     app.use(`${prefix}/transfer`, transferRoutes);
+     app.use(`${prefix}/bridge`, bridgeRoutes);
+     app.use(`${prefix}/ledger`, ledgerRoutes);
+     app.use(`${prefix}/admin`, adminRoutes);
+}
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
