@@ -11,6 +11,13 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
 export class AuthService {
      async register(email: string, password: string) {
+          const existingUser = await prisma.user.findUnique({
+               where: { email }
+          });
+          if (existingUser) {
+               throw new Error('Email already registered');
+          }
+
           const hashedPassword = await bcrypt.hash(password, 10);
 
           const user = await prisma.$transaction(async (tx) => {
