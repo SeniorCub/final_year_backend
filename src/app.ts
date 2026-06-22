@@ -13,8 +13,10 @@ import { transferRoutes } from './modules/transaction/transfer.routes.js';
 import { bridgeRoutes } from './modules/bridge/bridge.routes.js';
 import { ledgerRoutes } from './modules/ledger/ledger.routes.js';
 import { adminRoutes } from './modules/admin/admin.routes.js';
+import { supabaseRoutes } from './modules/supabase/supabase.routes.js';
 import { blockchainMonitor } from './modules/blockchain/blockchain.monitor.js';
 import dotenv from 'dotenv';
+
 
 dotenv.config();
 
@@ -100,6 +102,7 @@ for (const prefix of ['', '/api']) {
      fastify.register(bridgeRoutes, { prefix: `${prefix}/bridge` });
      fastify.register(ledgerRoutes, { prefix: `${prefix}/ledger` });
      fastify.register(adminRoutes, { prefix: `${prefix}/admin` });
+     fastify.register(supabaseRoutes, { prefix: `${prefix}/supabase` });
 }
 
 // Health Check

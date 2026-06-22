@@ -17,8 +17,10 @@ import transferRoutes from './routes/transferRoutes.js';
 import bridgeRoutes from './routes/bridgeRoutes.js';
 import ledgerRoutes from './routes/ledgerRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import supabaseRoutes from './routes/supabaseRoutes.js';
 import socketHandler from './socket/socketHandler.js';
 import errorHandler from './middleware/errorHandler.js';
+
 import { logError, logInfo, logWarn } from './helpers/logger.js';
 
 // __dirname equivalent for ES Modules
@@ -113,6 +115,7 @@ for (const prefix of ['', '/api']) {
      app.use(`${prefix}/bridge`, bridgeRoutes);
      app.use(`${prefix}/ledger`, ledgerRoutes);
      app.use(`${prefix}/admin`, adminRoutes);
+     app.use(`${prefix}/supabase`, supabaseRoutes);
 }
 
 // Health check
