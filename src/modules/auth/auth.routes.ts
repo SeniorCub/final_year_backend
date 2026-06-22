@@ -33,4 +33,10 @@ export async function authRoutes(fastify: FastifyInstance) {
                return reply.code(401).send({ error: error.message });
           }
      });
+
+     fastify.post('/logout', async (request, reply) => {
+          // Clear cookie manually by setting expired header (no dependency on @fastify/cookie)
+          reply.header('Set-Cookie', `token=; Path=/; HttpOnly; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; ${process.env.NODE_ENV === 'production' ? 'Secure;' : ''} SameSite=Strict`);
+          return { success: true, message: 'Logged out successfully' };
+     });
 }
