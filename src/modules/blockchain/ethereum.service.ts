@@ -103,15 +103,25 @@ export class EthereumService {
 
     async getBalance(address: string): Promise<string> {
         if (!ACCOUNT_CONTRACT_ADDRESS) throw new Error('Account contract address not configured');
-        const contract = new this.web3.eth.Contract(ACCOUNT_ABI, ACCOUNT_CONTRACT_ADDRESS);
-        const balance = await (contract.methods as any).getBalance(address).call();
-        return balance.toString(); // Simulated tokens might not use 18 decimals, but we'll return raw for now
+        try {
+            const contract = new this.web3.eth.Contract(ACCOUNT_ABI, ACCOUNT_CONTRACT_ADDRESS);
+            const balance = await (contract.methods as any).getBalance(address).call();
+            return balance.toString(); // Simulated tokens might not use 18 decimals, but we'll return raw for now
+        } catch (error: any) {
+            console.warn(`[EthereumService] Failed to get balance for ${address}:`, error.message);
+            return '0';
+        }
     }
 
     async isAccountCreated(address: string): Promise<boolean> {
         if (!ACCOUNT_CONTRACT_ADDRESS) throw new Error('Account contract address not configured');
-        const contract = new this.web3.eth.Contract(ACCOUNT_ABI, ACCOUNT_CONTRACT_ADDRESS);
-        return await (contract.methods as any).isAccountCreated(address).call();
+        try {
+            const contract = new this.web3.eth.Contract(ACCOUNT_ABI, ACCOUNT_CONTRACT_ADDRESS);
+            return await (contract.methods as any).isAccountCreated(address).call();
+        } catch (error: any) {
+            console.warn(`[EthereumService] Failed to check if account created for ${address}:`, error.message);
+            return false;
+        }
     }
 
     async broadcastTransaction(signedTx: string): Promise<string> {
