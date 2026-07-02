@@ -2,7 +2,9 @@ import { FastifyInstance } from 'fastify';
 import { accountService } from '../account/account.service.js';
 import { ethereumService } from '../blockchain/ethereum.service.js';
 import { walletService } from '../wallet/wallet.service.js';
+import prisma from '../database/prisma.js';
 import { z } from 'zod';
+import { ethers } from 'ethers';
 
 const ethActionSchema = z.object({
      amount: z.string(),
@@ -109,11 +111,30 @@ export async function transferRoutes(fastify: FastifyInstance) {
                fromAddress = wallet.ethPublicKey;
           }
 
+          let resolvedRecipientAddress = recipientAddress;
+          if (!ethers.isAddress(recipientAddress)) {
+               // Try to resolve by email or exact fullName
+               const user = await prisma.user.findFirst({
+                    where: {
+                         OR: [
+                              { email: recipientAddress },
+                              { fullName: recipientAddress }
+                         ]
+                    },
+                    include: { wallet: true }
+               });
+               
+               if (!user || !user.wallet) {
+                    return reply.code(404).send({ error: 'User not found or has no wallet' });
+               }
+               resolvedRecipientAddress = user.wallet.ethPublicKey;
+          }
+
           try {
                const txData = await ethereumService.generateTransactionData(
                    'TRANSFER',
                    'transfer',
-                   [recipientAddress, amount],
+                   [resolvedRecipientAddress, amount],
                    fromAddress
                );
                return txData;

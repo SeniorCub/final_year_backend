@@ -160,7 +160,7 @@ export class EthereumService {
         const data = (contract.methods as any)[method](...params).encodeABI();
         
         const [nonce, gasPrice, chainId] = await Promise.all([
-            this.web3.eth.getTransactionCount(from),
+            this.web3.eth.getTransactionCount(from, 'pending'),
             this.web3.eth.getGasPrice(),
             this.web3.eth.getChainId()
         ]);

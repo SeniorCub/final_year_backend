@@ -13,6 +13,16 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  // Profile fields
+  fullName    String?
+  phone       String?
+  theme       String   @default("Light")
+  kycStatus   String   @default("Unverified")
+  securityPin String?
+  tier        String   @default("Bronze")
+  limit       Decimal  @default(500000) @db.Decimal(20, 2)
+  linkedBanks Json?
 
   account      Account?
   wallet       Wallet?
