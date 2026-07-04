@@ -106,7 +106,7 @@ export class EthereumService {
         try {
             const contract = new this.web3.eth.Contract(ACCOUNT_ABI, ACCOUNT_CONTRACT_ADDRESS);
             const balance = await (contract.methods as any).getBalance(address).call();
-            return balance.toString(); // Simulated tokens might not use 18 decimals, but we'll return raw for now
+            return this.web3.utils.fromWei(balance.toString(), 'ether');
         } catch (error: any) {
             console.warn(`[EthereumService] Failed to get balance for ${address}:`, error.message);
             return '0';
@@ -157,10 +157,10 @@ export class EthereumService {
         ]);
 
         const history = [
-            ...(deposits as any[]).map(e => ({ type: 'DEPOSIT', amount: e.returnValues.amount.toString(), hash: e.transactionHash })),
-            ...(withdrawals as any[]).map(e => ({ type: 'WITHDRAWAL', amount: e.returnValues.amount.toString(), hash: e.transactionHash })),
-            ...(transfersSent as any[]).map(e => ({ type: 'TRANSFER_SENT', to: e.returnValues.recipient, amount: e.returnValues.amount.toString(), hash: e.transactionHash })),
-            ...(transfersReceived as any[]).map(e => ({ type: 'TRANSFER_RECEIVED', from: e.returnValues.sender, amount: e.returnValues.amount.toString(), hash: e.transactionHash }))
+            ...(deposits as any[]).map(e => ({ type: 'DEPOSIT', amount: this.web3.utils.fromWei(e.returnValues.amount.toString(), 'ether'), hash: e.transactionHash })),
+            ...(withdrawals as any[]).map(e => ({ type: 'WITHDRAWAL', amount: this.web3.utils.fromWei(e.returnValues.amount.toString(), 'ether'), hash: e.transactionHash })),
+            ...(transfersSent as any[]).map(e => ({ type: 'TRANSFER_SENT', to: e.returnValues.recipient, amount: this.web3.utils.fromWei(e.returnValues.amount.toString(), 'ether'), hash: e.transactionHash })),
+            ...(transfersReceived as any[]).map(e => ({ type: 'TRANSFER_RECEIVED', from: e.returnValues.sender, amount: this.web3.utils.fromWei(e.returnValues.amount.toString(), 'ether'), hash: e.transactionHash }))
         ];
 
         return history.sort((a, b) => b.hash.localeCompare(a.hash)); // Simple sort by hash as proxy for time if blockNumber not used

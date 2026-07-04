@@ -65,10 +65,11 @@ export async function transferRoutes(fastify: FastifyInstance) {
           }
 
           try {
+               const amountWei = ethers.parseEther(amount).toString();
                const txData = await ethereumService.generateTransactionData(
                    'TRANSFER',
                    'deposit',
-                   [amount],
+                   [amountWei],
                    fromAddress
                );
                return txData;
@@ -89,10 +90,11 @@ export async function transferRoutes(fastify: FastifyInstance) {
           }
 
           try {
+               const amountWei = ethers.parseEther(amount).toString();
                const txData = await ethereumService.generateTransactionData(
                    'TRANSFER',
                    'withdraw',
-                   [amount],
+                   [amountWei],
                    fromAddress
                );
                return txData;
@@ -133,10 +135,11 @@ export async function transferRoutes(fastify: FastifyInstance) {
           }
 
           try {
+               const amountWei = ethers.parseEther(amount).toString();
                const txData = await ethereumService.generateTransactionData(
                    'TRANSFER',
                    'transfer',
-                   [resolvedRecipientAddress, amount],
+                   [resolvedRecipientAddress, amountWei],
                    fromAddress
                );
                return txData;
