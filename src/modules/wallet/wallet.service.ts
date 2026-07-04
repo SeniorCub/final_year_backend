@@ -49,7 +49,13 @@ export class WalletService {
      async getBalance(userId: string) {
           const wallet = await this.getWallet(userId);
           const ethBalance = await ethereumService.getBalance(wallet.ethPublicKey);
-          const solBalance = await solanaService.getTokenBalance(wallet.solPublicKey);
+          let solBalance: string | number = 0;
+          try {
+               solBalance = await solanaService.getTokenBalance(wallet.solPublicKey);
+          } catch (err: any) {
+               console.warn(`Failed to fetch Solana balance for ${wallet.solPublicKey}:`, err.message);
+               solBalance = "0 (Error)";
+          }
           
           return {
                ethPublicKey: wallet.ethPublicKey,

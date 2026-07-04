@@ -1,0 +1,10 @@
+--- backend/prisma/schema.prisma
++++ backend/prisma/schema.prisma
+@@ -16,6 +16,7 @@
+   
+   // Profile fields
+   fullName    String?
++  username    String?  @unique
+   phone       String?
+   theme       String   @default("Light")
+   kycStatus   String   @default("Unverified")

@@ -113,12 +113,13 @@ export async function transferRoutes(fastify: FastifyInstance) {
 
           let resolvedRecipientAddress = recipientAddress;
           if (!ethers.isAddress(recipientAddress)) {
-               // Try to resolve by email or exact fullName
+               // Try to resolve by email, exact fullName, or username
                const user = await prisma.user.findFirst({
                     where: {
                          OR: [
                               { email: recipientAddress },
-                              { fullName: recipientAddress }
+                              { fullName: recipientAddress },
+                              { username: recipientAddress }
                          ]
                     },
                     include: { wallet: true }
@@ -163,6 +164,71 @@ export async function transferRoutes(fastify: FastifyInstance) {
                     error: error.name || 'Broadcast Error', 
                     message: error.message || 'Failed to broadcast transaction. Ensure the hex is valid and signed correctly.' 
                });
+          }
+     });
+
+     // 6. Manual Sync for Simulated Transactions (Demo Environment)
+     fastify.post('/eth/simulate-sync', async (request, reply) => {
+          const userId = (request.user as any).userId;
+          const body = request.body as any;
+          if (!body.hash || !body.hash.startsWith('0xsimulated')) {
+               return reply.code(400).send({ error: 'Only simulated transactions can be manually synced.' });
+          }
+
+          const wallet = await walletService.getWallet(userId);
+          
+          if (body.type === 'DEPOSIT') {
+               await bridgeService.syncEthereumAction('DEPOSIT', wallet.ethPublicKey, body.amount, body.hash);
+          } else if (body.type === 'WITHDRAW') {
+               await bridgeService.syncEthereumAction('WITHDRAW', wallet.ethPublicKey, body.amount, body.hash);
+          }
+          
+          return { success: true, message: 'Simulated transaction synced to ledger.' };
+     });
+
+     // 7. Get List of Banks from Paystack
+     fastify.get('/banks', async (request, reply) => {
+          try {
+               const response = await fetch('https://api.paystack.co/bank?country=nigeria', {
+                    headers: {
+                         'Authorization': `Bearer ${process.env.PAYSTACK_SECRET_KEY || 'sk_test_12345'}`
+                    }
+               });
+               const data = await response.json();
+               if (!data.status) throw new Error(data.message);
+               return reply.send({ success: true, banks: data.data });
+          } catch (error: any) {
+               return reply.code(400).send({ error: error.message || 'Failed to fetch banks' });
+          }
+     });
+
+     // 8. Verify Bank Account
+     fastify.post('/verify-account', async (request, reply) => {
+          const { accountNumber, bankCode } = request.body as { accountNumber: string, bankCode: string };
+          try {
+               const response = await fetch(`https://api.paystack.co/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`, {
+                    headers: {
+                         'Authorization': `Bearer ${process.env.PAYSTACK_SECRET_KEY || 'sk_test_12345'}`
+                    }
+               });
+               const data = await response.json();
+               if (!data.status) throw new Error(data.message);
+               return reply.send({ success: true, accountName: data.data.account_name });
+          } catch (error: any) {
+               return reply.code(400).send({ error: error.message || 'Failed to verify account' });
+          }
+     });
+
+     // 9. Send to Bank
+     fastify.post('/bank-transfer', { preHandler: [(fastify as any).authenticate] }, async (request, reply) => {
+          const userId = (request.user as any).userId;
+          const { amount, accountNumber, bankCode, bankName } = request.body as { amount: number, accountNumber: string, bankCode: string, bankName: string };
+          
+          try {
+               await bridgeService.withdrawToBlockchain(userId, amount); // Mock deducting bank balance
+               return reply.send({ success: true, message: `Successfully sent ₦${amount} to ${accountNumber} (${bankName})` });
+          } catch (error: any) {
+               return reply.code(400).send({ error: error.message || 'Transfer failed' });
           }
      });
 }

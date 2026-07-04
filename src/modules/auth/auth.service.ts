@@ -10,12 +10,17 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 
 export class AuthService {
-     async register(email: string, password: string) {
-          const existingUser = await prisma.user.findUnique({
-               where: { email }
+     async register(email: string, password: string, fullName: string, phone: string, username: string) {
+          const existingUser = await prisma.user.findFirst({
+               where: {
+                    OR: [
+                         { email },
+                         { username }
+                    ]
+               }
           });
           if (existingUser) {
-               throw new Error('Email already registered');
+               throw new Error(existingUser.email === email ? 'Email already registered' : 'Username already taken');
           }
 
           const hashedPassword = await bcrypt.hash(password, 10);
@@ -26,6 +31,9 @@ export class AuthService {
                     data: {
                          email,
                          password: hashedPassword,
+                         fullName,
+                         phone,
+                         username,
                     },
                });
 

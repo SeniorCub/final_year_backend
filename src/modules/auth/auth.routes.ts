@@ -6,6 +6,9 @@ import { z } from 'zod';
 const registerSchema = z.object({
      email: z.string().email(),
      password: z.string().min(6),
+     fullName: z.string(),
+     phone: z.string(),
+     username: z.string()
 });
 
 const loginSchema = z.object({
@@ -15,9 +18,9 @@ const loginSchema = z.object({
 
 export async function authRoutes(fastify: FastifyInstance) {
      fastify.post('/register', async (request, reply) => {
-          const { email, password } = registerSchema.parse(request.body);
+          const { email, password, fullName, phone, username } = registerSchema.parse(request.body);
           try {
-               const user = await authService.register(email, password);
+               const user = await authService.register(email, password, fullName, phone, username);
                return reply.code(201).send({ message: 'User registered successfully', userId: user.id });
           } catch (error: any) {
                return reply.code(400).send({ error: error.message });
