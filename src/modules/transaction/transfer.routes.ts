@@ -175,8 +175,8 @@ export async function transferRoutes(fastify: FastifyInstance) {
      fastify.post('/eth/simulate-sync', async (request, reply) => {
           const userId = (request.user as any).userId;
           const body = request.body as any;
-          if (!body.hash || !body.hash.startsWith('0xsimulated')) {
-               return reply.code(400).send({ error: 'Only simulated transactions can be manually synced.' });
+          if (!body.hash) {
+               return reply.code(400).send({ error: 'Transaction hash is required.' });
           }
 
           const wallet = await walletService.getWallet(userId);
