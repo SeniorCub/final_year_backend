@@ -48,8 +48,16 @@ export class SolanaService {
           }
 
           try {
-               const mintPubKey = new PublicKey(CNGN_MINT);
-               const userPubKey = new PublicKey(publicKey);
+               let mintPubKey: PublicKey;
+               let userPubKey: PublicKey;
+               
+               try {
+                    mintPubKey = new PublicKey(CNGN_MINT);
+                    userPubKey = new PublicKey(publicKey.trim());
+               } catch (pubKeyErr: any) {
+                    console.error('[SolanaService] Invalid public key:', pubKeyErr.message);
+                    return 0; // Return 0 balance if invalid key is provided (e.g. non-base58)
+               }
 
                const tokenAccounts = await this.connection.getParsedTokenAccountsByOwner(userPubKey, {
                     mint: mintPubKey,
@@ -59,9 +67,9 @@ export class SolanaService {
                     return 0;
                }
 
-               const balance = tokenAccounts.value[0].account.data.parsed.info.tokenAmount.uiAmount;
-               return balance || 0;
-          } catch (error) {
+               const amountStr = tokenAccounts.value[0].account.data.parsed.info.tokenAmount.uiAmountString;
+               return parseFloat(amountStr) || 0;
+          } catch (error: any) {
                console.error('Error fetching token balance:', error);
                return 0;
           }
