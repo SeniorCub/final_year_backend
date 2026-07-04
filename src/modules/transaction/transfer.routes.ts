@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { accountService } from '../account/account.service.js';
 import { ethereumService } from '../blockchain/ethereum.service.js';
 import { walletService } from '../wallet/wallet.service.js';
+import { bridgeService } from '../bridge/bridge.service.js';
 import prisma from '../database/prisma.js';
 import { z } from 'zod';
 import { ethers } from 'ethers';
