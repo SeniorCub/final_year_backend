@@ -9,7 +9,8 @@
     "dev": "tsx watch src/app.ts",
     "build": "tsc",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "render-build": "npm install && npx prisma generate && npx prisma db push --accept-data-loss && npm run build"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",
