@@ -22,8 +22,13 @@ model User {
   kycStatus   String   @default("Unverified")
   securityPin String?
   tier        String   @default("Bronze")
-  limit       Decimal  @default(500000) @db.Decimal(20, 2)
+  limit       Decimal  @default(50000) @db.Decimal(20, 2)
   linkedBanks Json?
+  
+  // KYC details
+  bvn         String?
+  nin         String?
+  address     String?
 
   account      Account?
   wallet       Wallet?

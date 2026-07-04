@@ -18,7 +18,10 @@ export async function userRoutes(fastify: FastifyInstance) {
                     securityPin: true,
                     tier: true,
                     limit: true,
-                    linkedBanks: true
+                    linkedBanks: true,
+                    bvn: true,
+                    nin: true,
+                    address: true
                },
           });
           return user;

@@ -89,7 +89,9 @@ export class KycService {
       data: {
         tier: 'Tier 2',
         limit: 500000,
-        kycStatus: 'Verified (Level 2)'
+        kycStatus: 'Verified (Level 2)',
+        bvn: type === 'BVN' ? value : undefined,
+        nin: type === 'NIN' ? value : undefined
       }
     });
 
@@ -131,7 +133,8 @@ export class KycService {
       data: {
         tier: 'Tier 3',
         limit: 5000000,
-        kycStatus: 'Verified (Level 3)'
+        kycStatus: 'Verified (Level 3)',
+        address: data.address
       }
     });
 
