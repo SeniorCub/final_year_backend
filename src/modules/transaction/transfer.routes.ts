@@ -229,7 +229,27 @@ export async function transferRoutes(fastify: FastifyInstance) {
           const { amount, accountNumber, bankCode, bankName } = request.body as { amount: number, accountNumber: string, bankCode: string, bankName: string };
           
           try {
-               await bridgeService.withdrawToBlockchain(userId, amount); // Mock deducting bank balance
+               // Mock deducting bank balance for a local bank transfer
+               await prisma.$transaction(async (tx) => {
+                    const account = await tx.account.findUnique({ where: { userId } });
+                    if (!account || account.balance.toNumber() < amount) {
+                         throw new Error('Insufficient bank balance');
+                    }
+                    await tx.account.update({
+                         where: { userId },
+                         data: { balance: { decrement: amount } },
+                    });
+                    await tx.ledgerEntry.create({
+                         data: {
+                              userId,
+                              type: 'WITHDRAW',
+                              amount,
+                              reference: `BANK-${Date.now()}-${accountNumber.slice(-4)}`,
+                              status: 'COMPLETED',
+                              metadata: { bankCode, bankName, accountNumber }
+                         }
+                    });
+               });
                return reply.send({ success: true, message: `Successfully sent ₦${amount} to ${accountNumber} (${bankName})` });
           } catch (error: any) {
                return reply.code(400).send({ error: error.message || 'Transfer failed' });
