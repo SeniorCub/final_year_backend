@@ -116,13 +116,17 @@ export async function transferRoutes(fastify: FastifyInstance) {
 
           let resolvedRecipientAddress = recipientAddress;
           if (!ethers.isAddress(recipientAddress)) {
-               // Try to resolve by email, exact fullName, or username
+               let query = recipientAddress.trim();
+               if (!query.startsWith('@') && !query.includes('@')) {
+                    query = '@' + query;
+               }
+
                const user = await prisma.user.findFirst({
                     where: {
                          OR: [
                               { email: recipientAddress },
                               { fullName: recipientAddress },
-                              { username: recipientAddress }
+                              { username: query }
                          ]
                     },
                     include: { wallet: true }
