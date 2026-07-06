@@ -79,4 +79,28 @@ export async function userRoutes(fastify: FastifyInstance) {
           
           return { success: true, user };
      });
+
+     fastify.post('/verify-pin', { preHandler: [(fastify as any).authenticate] }, async (request, reply) => {
+          const userId = (request.user as any).userId;
+          const { pin } = request.body as { pin: string };
+          
+          if (!pin) {
+               return reply.code(400).send({ error: 'PIN is required' });
+          }
+
+          const user = await prisma.user.findUnique({
+               where: { id: userId },
+               select: { securityPin: true }
+          });
+
+          if (!user || !user.securityPin) {
+               return reply.code(400).send({ error: 'No security PIN has been set for this account. Please set one in your profile.' });
+          }
+
+          if (user.securityPin !== pin) {
+               return reply.code(401).send({ error: 'Incorrect PIN' });
+          }
+
+          return { success: true };
+     });
 }
