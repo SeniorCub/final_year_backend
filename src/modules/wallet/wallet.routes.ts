@@ -22,4 +22,14 @@ export async function walletRoutes(fastify: FastifyInstance) {
           const userId = (request.user as any).userId;
           return await walletService.createWallet(userId);
      });
+
+     fastify.post('/faucet', async (request, reply) => {
+          const userId = (request.user as any).userId;
+          const body = request.body as { coin: 'eth' | 'sol'; amount: number };
+          if (!body || !body.coin || !body.amount) {
+               return reply.code(400).send({ error: 'coin and amount are required' });
+          }
+          await walletService.fundDemoWallet(userId, body.coin, body.amount);
+          return { success: true, message: `Demo wallet funded with ${body.amount} ${body.coin.toUpperCase()}` };
+     });
 }

@@ -54,14 +54,17 @@ export class WalletService {
                solBalance = await solanaService.getTokenBalance(wallet.solPublicKey);
           } catch (err: any) {
                console.warn(`Failed to fetch Solana balance for ${wallet.solPublicKey}:`, err.message);
-               solBalance = "0 (Error)";
+               solBalance = "0"; // Changed to just "0" for addition
           }
           
+          const totalEth = parseFloat(ethBalance) + parseFloat(wallet.simulatedEthBalance.toString());
+          const totalSol = parseFloat(solBalance.toString()) + parseFloat(wallet.simulatedSolBalance.toString());
+
           return {
                ethPublicKey: wallet.ethPublicKey,
                solPublicKey: wallet.solPublicKey,
-               eth: ethBalance,
-               sol: solBalance,
+               eth: totalEth,
+               sol: totalSol,
           };
      }
 
@@ -73,6 +76,20 @@ export class WalletService {
      async getDecryptedSolPrivateKey(userId: string) {
           const wallet = await this.getWallet(userId);
           return decrypt(wallet.encryptedSolPrivateKey);
+     }
+
+     async fundDemoWallet(userId: string, coin: 'eth' | 'sol', amount: number) {
+          if (coin === 'eth') {
+               await prisma.wallet.update({
+                    where: { userId },
+                    data: { simulatedEthBalance: { increment: amount } }
+               });
+          } else if (coin === 'sol') {
+               await prisma.wallet.update({
+                    where: { userId },
+                    data: { simulatedSolBalance: { increment: amount } }
+               });
+          }
      }
 }
 

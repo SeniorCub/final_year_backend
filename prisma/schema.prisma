@@ -55,6 +55,8 @@ model Wallet {
   encryptedEthPrivateKey  String
   solPublicKey            String   @unique
   encryptedSolPrivateKey  String
+  simulatedEthBalance     Decimal  @default(0) @db.Decimal(20, 6)
+  simulatedSolBalance     Decimal  @default(0) @db.Decimal(20, 6)
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 }
