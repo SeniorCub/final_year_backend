@@ -15,6 +15,7 @@ import { ledgerRoutes } from './modules/ledger/ledger.routes.js';
 import { adminRoutes } from './modules/admin/admin.routes.js';
 import { supabaseRoutes } from './modules/supabase/supabase.routes.js';
 import { kycRoutes } from './modules/kyc/kyc.routes.js';
+import { notificationRoutes } from './modules/notification/notification.routes.js';
 import { blockchainMonitor } from './modules/blockchain/blockchain.monitor.js';
 import dotenv from 'dotenv';
 
@@ -89,6 +90,7 @@ fastify.get('/', async () => {
                bridge: '/api/bridge',
                ledger: '/api/ledger',
                kyc: '/api/kyc',
+               notifications: '/api/notifications',
                health: '/api/health'
           }
      };
@@ -104,6 +106,7 @@ for (const prefix of ['', '/api']) {
      fastify.register(bridgeRoutes, { prefix: `${prefix}/bridge` });
      fastify.register(ledgerRoutes, { prefix: `${prefix}/ledger` });
      fastify.register(kycRoutes, { prefix: `${prefix}/kyc` });
+     fastify.register(notificationRoutes, { prefix: `${prefix}/notifications` });
      fastify.register(adminRoutes, { prefix: `${prefix}/admin` });
      fastify.register(supabaseRoutes, { prefix: `${prefix}/supabase` });
 }

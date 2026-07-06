@@ -104,6 +104,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
+import notificationRoutes from './routes/notificationRoutes.js';
+
 // Register all routes with and without /api prefix
 for (const prefix of ['', '/api']) {
      app.use(`${prefix}/auth`, authRoutes);
@@ -116,6 +118,7 @@ for (const prefix of ['', '/api']) {
      app.use(`${prefix}/ledger`, ledgerRoutes);
      app.use(`${prefix}/admin`, adminRoutes);
      app.use(`${prefix}/supabase`, supabaseRoutes);
+     app.use(`${prefix}/notifications`, notificationRoutes);
 }
 
 // Health check

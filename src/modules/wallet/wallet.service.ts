@@ -51,7 +51,7 @@ export class WalletService {
           const ethBalance = await ethereumService.getBalance(wallet.ethPublicKey);
           let solBalance: string | number = 0;
           try {
-               solBalance = await solanaService.getTokenBalance(wallet.solPublicKey);
+               solBalance = await solanaService.getSOLBalance(wallet.solPublicKey);
           } catch (err: any) {
                console.warn(`Failed to fetch Solana balance for ${wallet.solPublicKey}:`, err.message);
                solBalance = "0"; // Changed to just "0" for addition

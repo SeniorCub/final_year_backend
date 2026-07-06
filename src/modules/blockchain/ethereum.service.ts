@@ -102,13 +102,19 @@ export class EthereumService {
     }
 
     async getBalance(address: string): Promise<string> {
-        if (!ACCOUNT_CONTRACT_ADDRESS) throw new Error('Account contract address not configured');
         try {
-            const contract = new this.web3.eth.Contract(ACCOUNT_ABI, ACCOUNT_CONTRACT_ADDRESS);
-            const balance = await (contract.methods as any).getBalance(address).call();
-            return this.web3.utils.fromWei(balance.toString(), 'ether');
+            const apikey = process.env.ETHERSCAN_API_KEY || 'YourApiKeyToken';
+            // Use Etherscan API to get the native ETH balance
+            const response = await fetch(`https://api-sepolia.etherscan.io/api?module=account&action=balance&address=${address}&tag=latest&apikey=${apikey}`);
+            const data = await response.json();
+            
+            if (data && data.status === '1') {
+                return this.web3.utils.fromWei(data.result, 'ether');
+            }
+            console.warn(`[EthereumService] Etherscan API returned status ${data?.status}:`, data?.message);
+            return '0';
         } catch (error: any) {
-            console.warn(`[EthereumService] Failed to get balance for ${address}:`, error.message);
+            console.warn(`[EthereumService] Failed to get balance from Etherscan for ${address}:`, error.message);
             return '0';
         }
     }
