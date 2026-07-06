@@ -3,19 +3,11 @@ import { kycService } from './kyc.service.js';
 import { z } from 'zod';
 
 const tier1Schema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
-  phone: z.string(),
-  dob: z.string(),
-  gender: z.enum(['MALE', 'FEMALE', 'OTHER']),
+  nin: z.string().length(11, 'NIN must be 11 digits'),
 });
 
 const tier2Schema = z.object({
-  bvn: z.string().length(11, 'BVN must be 11 digits').optional(),
-  nin: z.string().length(11, 'NIN must be 11 digits').optional(),
-}).refine(data => data.bvn || data.nin, {
-  message: "Either BVN or NIN must be provided",
-  path: ["bvn"]
+  bvn: z.string().length(11, 'BVN must be 11 digits'),
 });
 
 const tier3Schema = z.object({

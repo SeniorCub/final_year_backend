@@ -66,30 +66,35 @@ export class KycService {
   }
 
   async upgradeTier1(userId: string, data: any) {
-    // Tier 1: Basic info
-    const fullName = `${data.firstName} ${data.lastName}`;
-    
+    // Tier 1: NIN Verification
+    const verificationResult = await this.externalVerification('NIN', data.nin);
+
+    // If real Dojah is used, extract full name and dob
+    let fullName = 'User';
+    let dob = '';
+    if (verificationResult.data) {
+      const v = verificationResult.data;
+      fullName = `${v.first_name || ''} ${v.last_name || ''}`.trim();
+      dob = v.date_of_birth || '';
+    }
+
     const user = await prisma.user.update({
       where: { id: userId },
       data: {
-        fullName,
-        phone: data.phone,
+        ...(fullName && fullName !== 'User' ? { fullName } : {}),
+        nin: data.nin,
         tier: 'Tier 1',
         limit: 50000,
         kycStatus: 'Verified (Level 1)'
       }
     });
     
-    return { success: true, tier: user.tier, limit: user.limit, message: 'Tier 1 KYC Successful' };
+    return { success: true, tier: user.tier, limit: user.limit, message: 'Tier 1 KYC (NIN) Successful' };
   }
 
   async upgradeTier2(userId: string, data: any) {
-    // Tier 2 requires verifying BVN or NIN
-    const type = data.bvn ? 'BVN' : 'NIN';
-    const value = data.bvn || data.nin;
-
-    // Call external API
-    const verificationResult = await this.externalVerification(type, value);
+    // Tier 2 requires verifying BVN
+    const verificationResult = await this.externalVerification('BVN', data.bvn);
 
     // If real Dojah is used, verify the name matches (basic check)
     if (verificationResult.data) {
@@ -97,10 +102,8 @@ export class KycService {
       const externalFirstName = verificationResult.data.first_name?.toLowerCase();
       const dbFirstName = dbUser?.fullName?.split(' ')[0].toLowerCase();
       
-      // In production, you would run a strict string distance similarity check.
       if (externalFirstName && dbFirstName && !externalFirstName.includes(dbFirstName) && !dbFirstName.includes(externalFirstName)) {
          console.warn(`Name mismatch: DB(${dbFirstName}) vs API(${externalFirstName})`);
-         // We won't block it here to prevent demo issues, but we log the discrepancy.
       }
     }
 
@@ -110,12 +113,11 @@ export class KycService {
         tier: 'Tier 2',
         limit: 500000,
         kycStatus: 'Verified (Level 2)',
-        bvn: type === 'BVN' ? value : undefined,
-        nin: type === 'NIN' ? value : undefined
+        bvn: data.bvn
       }
     });
 
-    return { success: true, tier: user.tier, limit: user.limit, message: 'Tier 2 KYC Successful' };
+    return { success: true, tier: user.tier, limit: user.limit, message: 'Tier 2 KYC (BVN) Successful' };
   }
 
   async upgradeTier3(userId: string, data: any) {
