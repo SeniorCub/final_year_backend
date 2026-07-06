@@ -81,3 +81,16 @@ export const broadcast = async (req: any, res: Response): Promise<void> => {
           res.status(500).json({ success: false, error: error.message });
      }
 };
+
+export const simulateSync = async (req: any, res: Response): Promise<void> => {
+     try {
+          const { type, hash, amount } = req.body;
+          res.status(200).json({
+               success: true,
+               message: 'Simulated sync successful',
+               hash
+          });
+     } catch (error: any) {
+          res.status(500).json({ success: false, error: error.message });
+     }
+};

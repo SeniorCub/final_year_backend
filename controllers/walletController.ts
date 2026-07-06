@@ -44,3 +44,15 @@ export const getWalletBalance = async (req: any, res: Response): Promise<void> =
           res.status(500).json({ success: false, error: error.message });
      }
 };
+
+export const faucet = async (req: any, res: Response): Promise<void> => {
+     try {
+          const { coin, amount } = req.body;
+          res.status(200).json({
+               success: true,
+               message: `Added ${amount} ${coin} to simulated wallet.`
+          });
+     } catch (error: any) {
+          res.status(500).json({ success: false, error: error.message });
+     }
+};
