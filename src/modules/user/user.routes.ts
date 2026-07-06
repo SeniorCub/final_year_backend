@@ -47,7 +47,7 @@ export async function userRoutes(fastify: FastifyInstance) {
                }
           });
           if (!user) {
-               return reply.code(404).send({ error: 'User not found' });
+               return { success: false, error: 'User not found or has no wallet' };
           }
           return { success: true, accountName: user.fullName, username: user.username };
      });
