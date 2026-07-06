@@ -27,6 +27,31 @@ export async function userRoutes(fastify: FastifyInstance) {
           return user;
      });
 
+     fastify.get('/lookup/:identifier', { preHandler: [(fastify as any).authenticate] }, async (request, reply) => {
+          const { identifier } = request.params as { identifier: string };
+          let query = identifier.trim();
+          if (!query.startsWith('@') && !query.includes('@')) {
+               query = '@' + query;
+          }
+          const user = await prisma.user.findFirst({
+               where: {
+                    OR: [
+                         { username: query },
+                         { email: query },
+                         { fullName: identifier.trim() }
+                    ]
+               },
+               select: {
+                    fullName: true,
+                    username: true,
+               }
+          });
+          if (!user) {
+               return reply.code(404).send({ error: 'User not found' });
+          }
+          return { success: true, accountName: user.fullName, username: user.username };
+     });
+
      fastify.post('/profile', { preHandler: [(fastify as any).authenticate] }, async (request, reply) => {
           const userId = (request.user as any).userId;
           const body = request.body as any;
