@@ -1,16 +1,16 @@
-// import { Router } from 'express';
-// import { requireAuth } from '../middleware/authMiddleware.js';
-// import { getNotifications, markAsRead } from '../controllers/notificationController.js';
+import { Router } from 'express';
+import { protect } from '../middleware/authMiddleware.js';
+import { getNotifications, markAsRead } from '../controllers/notificationController.js';
 
-// const router = Router();
+const router = Router();
 
-// // GET /api/notifications
-// // Retrieves notifications for the logged in user
-// router.get('/', requireAuth, getNotifications);
+// GET /api/notifications
+// Retrieves notifications for the logged in user
+router.get('/', protect, getNotifications);
 
-// // POST /api/notifications/read
-// // Marks all or specific notifications as read
-// router.post('/read', requireAuth, markAsRead);
+// POST /api/notifications/read
+// Marks all or specific notifications as read
+router.post('/read', protect, markAsRead);
 
-// export default router;
+export default router;
 
