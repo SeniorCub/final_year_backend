@@ -136,10 +136,12 @@ export class AccountService {
                                    data: { status: LedgerEntryStatus.FAILED },
                               });
                               throw new Error(`Payment ${response.data.data.status} on Paystack`);
+                         } else {
+                              throw new Error(`Payment is still ${response.data.data.status} on Paystack`);
                          }
                     }
                } catch (apiError: any) {
-                    if (apiError.message && apiError.message.includes('abandoned') || apiError.message.includes('failed')) {
+                    if (apiError.message && (apiError.message.includes('abandoned') || apiError.message.includes('failed') || apiError.message.includes('still'))) {
                          throw apiError;
                     }
                     console.error('Paystack verification call failed:', apiError.message);
@@ -170,7 +172,7 @@ export class AccountService {
                     return account;
                });
           } else {
-               throw new Error('Payment verification pending or failed on Paystack');
+               throw new Error('Payment could not be verified automatically. Please try again later.');
           }
      }
 
