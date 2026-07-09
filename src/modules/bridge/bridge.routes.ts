@@ -4,6 +4,8 @@ import { z } from 'zod';
 
 const withdrawSchema = z.object({
      amount: z.number().positive(),
+     targetAddress: z.string().optional(),
+     chain: z.enum(['ethereum', 'solana']).optional()
 });
 
 export async function bridgeRoutes(fastify: FastifyInstance) {
@@ -27,10 +29,10 @@ export async function bridgeRoutes(fastify: FastifyInstance) {
       */
      fastify.post('/withdraw', async (request, reply) => {
           const userId = (request.user as any).userId;
-          const { amount } = withdrawSchema.parse(request.body);
+          const { amount, targetAddress, chain } = withdrawSchema.parse(request.body);
 
           try {
-               const result = await bridgeService.withdrawToBlockchain(userId, amount);
+               const result = await bridgeService.withdrawToBlockchain(userId, amount, targetAddress, chain);
                return result;
           } catch (error: any) {
                return reply.code(400).send({ error: error.message });

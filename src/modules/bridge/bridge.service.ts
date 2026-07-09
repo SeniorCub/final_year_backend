@@ -14,7 +14,7 @@ export class BridgeService {
       * Withdraw from Bank to Blockchain
       * Deducts PostgreSQL balance and sends cNGN SPL tokens to user's Solana wallet
       */
-     async withdrawToBlockchain(userId: string, amount: number) {
+     async withdrawToBlockchain(userId: string, amount: number, targetAddress?: string, chain?: string) {
           // We will mock the transfer if SYSTEM_WALLET_PRIVATE_KEY is missing instead of failing
           // if (!SYSTEM_WALLET_PRIVATE_KEY) {
           //      throw new Error('System wallet not configured');
@@ -29,9 +29,13 @@ export class BridgeService {
                     throw new Error('Insufficient bank balance');
                }
 
-               const wallet = await tx.wallet.findUnique({ where: { userId } });
-               if (!wallet) {
-                    throw new Error('User blockchain wallet not found');
+               let destinationWallet = targetAddress;
+               if (!destinationWallet) {
+                    const wallet = await tx.wallet.findUnique({ where: { userId } });
+                    if (!wallet) {
+                         throw new Error('User blockchain wallet not found. Please provide a destination address.');
+                    }
+                    destinationWallet = chain === 'ethereum' ? wallet.ethPublicKey : wallet.solPublicKey;
                }
 
                await tx.account.update({
@@ -47,17 +51,17 @@ export class BridgeService {
                          amount,
                          reference,
                          status: 'PENDING',
-                         metadata: { toWallet: wallet.solPublicKey },
+                         metadata: { toWallet: destinationWallet, chain },
                     },
                });
 
-               // 3. Initiate Solana Transfer
+               // 3. Initiate Transfer
                try {
                     let signature = 'mock_signature_' + Date.now();
-                    if (SYSTEM_WALLET_PRIVATE_KEY) {
+                    if (SYSTEM_WALLET_PRIVATE_KEY && chain !== 'ethereum') {
                          signature = await solanaService.transferToken(
                               SYSTEM_WALLET_PRIVATE_KEY,
-                              wallet.solPublicKey,
+                              destinationWallet,
                               amount
                          );
                     } else {
