@@ -67,7 +67,7 @@ export class BridgeService {
                     } else {
                          // Simulate network delay
                          await new Promise(res => setTimeout(res, 2000));
-                         console.log(`[MOCK] Transferred ${amount} cNGN to ${wallet.solPublicKey}`);
+                         console.log(`[MOCK] Transferred ${amount} cNGN to ${destinationWallet}`);
                     }
 
                     // 4. Update Ledger Entry (Completed)
