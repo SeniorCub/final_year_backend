@@ -122,15 +122,26 @@ export class AccountService {
                               timeout: 10000,
                          }
                     );
-                    if (response.data && response.data.status && response.data.data.status === 'success') {
-                         const paystackAmount = response.data.data.amount / 100;
-                         if (Math.abs(paystackAmount - Number(ledger.amount)) < 0.01) {
-                              isSuccessful = true;
-                         } else {
-                              console.warn(`Paystack verification amount mismatch. Expected: ${ledger.amount}, Got: ${paystackAmount}`);
+                    if (response.data && response.data.status) {
+                         if (response.data.data.status === 'success') {
+                              const paystackAmount = response.data.data.amount / 100;
+                              if (Math.abs(paystackAmount - Number(ledger.amount)) < 0.01) {
+                                   isSuccessful = true;
+                              } else {
+                                   console.warn(`Paystack verification amount mismatch. Expected: ${ledger.amount}, Got: ${paystackAmount}`);
+                              }
+                         } else if (response.data.data.status === 'failed' || response.data.data.status === 'abandoned') {
+                              await prisma.ledgerEntry.update({
+                                   where: { reference },
+                                   data: { status: LedgerEntryStatus.FAILED },
+                              });
+                              throw new Error(`Payment ${response.data.data.status} on Paystack`);
                          }
                     }
                } catch (apiError: any) {
+                    if (apiError.message && apiError.message.includes('abandoned') || apiError.message.includes('failed')) {
+                         throw apiError;
+                    }
                     console.error('Paystack verification call failed:', apiError.message);
                     // For mock refs or local testing, allow fallback validation
                     if (reference.includes('mock') || reference.startsWith('PAYSTACK-')) {
@@ -194,6 +205,19 @@ export class AccountService {
                     });
                     console.log(`Successfully credited user ${ledger.userId} for reference ${reference} via webhook`);
                     return true;
+               }
+          } else if (payload.event === 'charge.failed' || (payload.data && payload.data.status === 'failed')) {
+               const reference = payload.data?.reference;
+               if (reference) {
+                    const ledger = await prisma.ledgerEntry.findUnique({ where: { reference } });
+                    if (ledger && ledger.status === LedgerEntryStatus.PENDING) {
+                         await prisma.ledgerEntry.update({
+                              where: { reference },
+                              data: { status: LedgerEntryStatus.FAILED },
+                         });
+                         console.log(`Marked deposit ${reference} as failed via webhook`);
+                         return true;
+                    }
                }
           }
           return false;
