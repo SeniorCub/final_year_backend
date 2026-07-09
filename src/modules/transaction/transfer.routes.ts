@@ -116,7 +116,7 @@ export async function transferRoutes(fastify: FastifyInstance) {
 
           let resolvedRecipientAddress = recipientAddress;
           if (!ethers.isAddress(recipientAddress)) {
-               let query = recipientAddress.trim();
+               let query = String(recipientAddress).trim();
                if (!query.startsWith('@') && !query.includes('@')) {
                     query = '@' + query;
                }
@@ -257,6 +257,88 @@ export async function transferRoutes(fastify: FastifyInstance) {
                return reply.send({ success: true, message: `Successfully sent ₦${amount} to ${accountNumber} (${bankName})` });
           } catch (error: any) {
                return reply.code(400).send({ error: error.message || 'Transfer failed' });
+          }
+     });
+
+     // 10. Native P2P Fiat Transfer (cNGN internal)
+     fastify.post('/p2p', { preHandler: [(fastify as any).authenticate] }, async (request, reply) => {
+          const senderId = (request.user as any).userId;
+          const { recipientUsername, amount, note } = request.body as { recipientUsername: string, amount: number, note?: string };
+
+          if (amount <= 0) {
+               return reply.code(400).send({ error: 'Invalid amount' });
+          }
+
+          try {
+               let query = recipientUsername.trim();
+               if (!query.startsWith('@') && !query.includes('@')) {
+                    query = '@' + query;
+               }
+
+               const recipientUser = await prisma.user.findFirst({
+                    where: {
+                         OR: [
+                              { username: query },
+                              { username: recipientUsername.trim() },
+                              { email: recipientUsername.trim() }
+                         ]
+                    }
+               });
+
+               if (!recipientUser) {
+                    return reply.code(404).send({ error: 'Recipient not found' });
+               }
+
+               if (recipientUser.id === senderId) {
+                    return reply.code(400).send({ error: 'Cannot send money to yourself' });
+               }
+
+               await prisma.$transaction(async (tx) => {
+                    const senderAccount = await tx.account.findUnique({ where: { userId: senderId } });
+                    if (!senderAccount || senderAccount.balance.toNumber() < amount) {
+                         throw new Error('Insufficient balance');
+                    }
+
+                    // Deduct from sender
+                    await tx.account.update({
+                         where: { userId: senderId },
+                         data: { balance: { decrement: amount } },
+                    });
+
+                    // Add to recipient
+                    await tx.account.update({
+                         where: { userId: recipientUser.id },
+                         data: { balance: { increment: amount } },
+                    });
+
+                    // Sender Ledger Entry
+                    await tx.ledgerEntry.create({
+                         data: {
+                              userId: senderId,
+                              type: 'WITHDRAW',
+                              amount,
+                              reference: `P2P-SEND-${Date.now()}`,
+                              status: 'COMPLETED',
+                              metadata: { recipientId: recipientUser.id, recipientUsername: recipientUser.username, note }
+                         }
+                    });
+
+                    // Recipient Ledger Entry
+                    await tx.ledgerEntry.create({
+                         data: {
+                              userId: recipientUser.id,
+                              type: 'DEPOSIT',
+                              amount,
+                              reference: `P2P-RECV-${Date.now()}`,
+                              status: 'COMPLETED',
+                              metadata: { senderId, senderUsername: (request.user as any).username, note }
+                         }
+                    });
+               });
+
+               return reply.send({ success: true, message: `Successfully sent ₦${amount} to ${recipientUser.username}` });
+          } catch (error: any) {
+               return reply.code(400).send({ error: error.message || 'P2P Transfer failed' });
           }
      });
 }
