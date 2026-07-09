@@ -45,18 +45,22 @@ export async function accountRoutes(fastify: FastifyInstance) {
                };
           });
 
-          authGroup.get('/deposit/verify/:reference', async (request) => {
+          authGroup.get('/deposit/verify/:reference', async (request, reply) => {
                const userId = (request.user as any).userId;
                const { reference } = request.params as { reference: string };
-               const account = await accountService.verifyDeposit(userId, reference);
-               if (!account) {
-                    throw new Error('Account not found');
+               try {
+                    const account = await accountService.verifyDeposit(userId, reference);
+                    if (!account) {
+                         return reply.code(400).send({ error: 'Account not found' });
+                    }
+                    return { 
+                         success: true, 
+                         message: 'Deposit verified and account credited', 
+                         balance: account.balance 
+                    };
+               } catch (error: any) {
+                    return reply.code(400).send({ error: error.message });
                }
-               return { 
-                    success: true, 
-                    message: 'Deposit verified and account credited', 
-                    balance: account.balance 
-               };
           });
      });
 }
