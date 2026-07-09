@@ -293,7 +293,14 @@ export async function transferRoutes(fastify: FastifyInstance) {
                     return reply.code(400).send({ error: 'Cannot send money to yourself' });
                }
 
+               const sendRef = `P2P-SEND-${Date.now()}`;
+
                await prisma.$transaction(async (tx) => {
+                    const senderUser = await tx.user.findUnique({ where: { id: senderId } });
+                    if (!senderUser) {
+                         throw new Error('Sender not found');
+                    }
+                    
                     const senderAccount = await tx.account.findUnique({ where: { userId: senderId } });
                     if (!senderAccount || senderAccount.balance.toNumber() < amount) {
                          throw new Error('Insufficient balance');
@@ -317,7 +324,7 @@ export async function transferRoutes(fastify: FastifyInstance) {
                               userId: senderId,
                               type: 'WITHDRAW',
                               amount,
-                              reference: `P2P-SEND-${Date.now()}`,
+                              reference: sendRef,
                               status: 'COMPLETED',
                               metadata: { recipientId: recipientUser.id, recipientUsername: recipientUser.username, note }
                          }
@@ -331,12 +338,12 @@ export async function transferRoutes(fastify: FastifyInstance) {
                               amount,
                               reference: `P2P-RECV-${Date.now()}`,
                               status: 'COMPLETED',
-                              metadata: { senderId, senderUsername: (request.user as any).username, note }
+                              metadata: { senderId, senderUsername: senderUser.username, note }
                          }
                     });
                });
 
-               return reply.send({ success: true, message: `Successfully sent ₦${amount} to ${recipientUser.username}` });
+               return reply.send({ success: true, message: `Successfully sent ₦${amount} to ${recipientUser.username}`, reference: sendRef });
           } catch (error: any) {
                return reply.code(400).send({ error: error.message || 'P2P Transfer failed' });
           }
