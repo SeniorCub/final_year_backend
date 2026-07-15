@@ -8,3 +8,4 @@ package-*.json
 */package-*.json
 .env
 *.env
+node_modules/
