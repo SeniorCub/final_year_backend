@@ -326,7 +326,7 @@ export async function transferRoutes(fastify: FastifyInstance) {
                               amount,
                               reference: sendRef,
                               status: 'COMPLETED',
-                              metadata: { recipientId: recipientUser.id, recipientUsername: recipientUser.username, note }
+                              metadata: { recipientId: recipientUser.id, recipientUsername: recipientUser.username || recipientUser.fullName || recipientUser.email, note }
                          }
                     });
 
@@ -338,7 +338,7 @@ export async function transferRoutes(fastify: FastifyInstance) {
                               amount,
                               reference: `P2P-RECV-${Date.now()}`,
                               status: 'COMPLETED',
-                              metadata: { senderId, senderUsername: senderUser.username, note }
+                              metadata: { senderId, senderUsername: senderUser.username || senderUser.fullName || senderUser.email, note }
                          }
                     });
                });
