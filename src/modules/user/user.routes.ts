@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import prisma from '../database/prisma.js';
+import bcrypt from 'bcrypt';
 
 export async function userRoutes(fastify: FastifyInstance) {
      fastify.get('/me', { preHandler: [(fastify as any).authenticate] }, async (request, reply) => {
@@ -15,7 +16,6 @@ export async function userRoutes(fastify: FastifyInstance) {
                     phone: true,
                     theme: true,
                     kycStatus: true,
-                    securityPin: true,
                     tier: true,
                     limit: true,
                     linkedBanks: true,
@@ -58,7 +58,9 @@ export async function userRoutes(fastify: FastifyInstance) {
           
           const updateData: any = {};
           if (body.theme) updateData.theme = body.theme;
-          if (body.securityPin) updateData.securityPin = body.securityPin;
+          if (body.securityPin) {
+               updateData.securityPin = await bcrypt.hash(body.securityPin, 10);
+          }
           if (body.linkedBanks) updateData.linkedBanks = body.linkedBanks;
           if (body.fullName) updateData.fullName = body.fullName;
           if (body.phone) updateData.phone = body.phone;
@@ -97,7 +99,8 @@ export async function userRoutes(fastify: FastifyInstance) {
                return reply.code(400).send({ error: 'No security PIN has been set for this account. Please set one in your profile.' });
           }
 
-          if (user.securityPin !== pin) {
+          const isMatch = await bcrypt.compare(pin, user.securityPin);
+          if (!isMatch) {
                return reply.code(401).send({ error: 'Incorrect PIN' });
           }
 
