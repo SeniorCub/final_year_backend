@@ -8,9 +8,41 @@ export class KycService {
   async getKycStatus(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { tier: true, kycStatus: true, limit: true }
+      select: { tier: true, kycStatus: true }
     });
-    return user;
+
+    const kycTiers = [
+      {
+        level: 'Tier 1 (Basic)',
+        requirements: 'Phone number + NIN or BVN',
+        dailyLimit: 50000,
+        maxBalance: 300000,
+        benefits: 'Basic transfers, airtime, bills, account funding',
+        limitations: 'Low transfer limit, low wallet balance, not suitable for high-value transactions.'
+      },
+      {
+        level: 'Tier 2',
+        requirements: 'Tier 1 + Government-issued ID, BVN/NIN, Selfie/Face Verification',
+        dailyLimit: 200000,
+        maxBalance: 500000,
+        benefits: 'Higher limits, improved trust, access to more financial services',
+        limitations: 'Still capped for businesses or high-volume users.'
+      },
+      {
+        level: 'Tier 3 (Fully Verified)',
+        requirements: 'Tier 2 + Proof of Address, passport photo (or equivalent), full KYC',
+        dailyLimit: 5000000,
+        maxBalance: -1, // Unlimited
+        benefits: 'Very high transaction limits, suitable for businesses and power users',
+        limitations: 'Requires complete identity verification and address verification.'
+      }
+    ];
+
+    return {
+      currentTier: user?.tier || 'Bronze',
+      kycStatus: user?.kycStatus || 'Unverified',
+      tiers: kycTiers
+    };
   }
 
   // Real External API Call for NIN/BVN Verification via Dojah Sandbox
@@ -66,10 +98,9 @@ export class KycService {
   }
 
   async upgradeTier1(userId: string, data: any) {
-    // Tier 1: NIN Verification
-    const verificationResult = await this.externalVerification('NIN', data.nin);
+    // Tier 1: NIN or BVN Verification
+    const verificationResult = await this.externalVerification(data.documentType, data.documentNumber);
 
-    // If real Dojah is used, extract full name and dob
     let fullName = 'User';
     let dob = '';
     if (verificationResult.data) {
@@ -82,42 +113,52 @@ export class KycService {
       where: { id: userId },
       data: {
         ...(fullName && fullName !== 'User' ? { fullName } : {}),
-        nin: data.nin,
+        ...(data.documentType === 'NIN' ? { nin: data.documentNumber } : { bvn: data.documentNumber }),
         tier: 'Tier 1',
         limit: 50000,
         kycStatus: 'Verified (Level 1)'
       }
     });
     
-    return { success: true, tier: user.tier, limit: user.limit, message: 'Tier 1 KYC (NIN) Successful' };
+    return { success: true, tier: user.tier, message: `Tier 1 KYC (${data.documentType}) Successful` };
   }
 
   async upgradeTier2(userId: string, data: any) {
-    // Tier 2 requires verifying BVN
-    const verificationResult = await this.externalVerification('BVN', data.bvn);
+    // Tier 2 requires Government ID, Selfie, and optionally BVN/NIN
+    if (data.bvnOrNin) {
+        const verificationResult = await this.externalVerification('BVN', data.bvnOrNin).catch(() => this.externalVerification('NIN', data.bvnOrNin));
+        if (verificationResult.data) {
+            const dbUser = await prisma.user.findUnique({ where: { id: userId }});
+            const externalFirstName = verificationResult.data.first_name?.toLowerCase();
+            const dbFirstName = dbUser?.fullName?.split(' ')[0].toLowerCase();
+            
+            if (externalFirstName && dbFirstName && !externalFirstName.includes(dbFirstName) && !dbFirstName.includes(externalFirstName)) {
+               console.warn(`Name mismatch: DB(${dbFirstName}) vs API(${externalFirstName})`);
+            }
+        }
+    }
 
-    // If real Dojah is used, verify the name matches (basic check)
-    if (verificationResult.data) {
-      const dbUser = await prisma.user.findUnique({ where: { id: userId }});
-      const externalFirstName = verificationResult.data.first_name?.toLowerCase();
-      const dbFirstName = dbUser?.fullName?.split(' ')[0].toLowerCase();
-      
-      if (externalFirstName && dbFirstName && !externalFirstName.includes(dbFirstName) && !dbFirstName.includes(externalFirstName)) {
-         console.warn(`Name mismatch: DB(${dbFirstName}) vs API(${externalFirstName})`);
-      }
+    // Simulate Government ID and Selfie verification
+    await new Promise(res => setTimeout(res, 2000));
+    if (!data.governmentIdBase64 || !data.selfieBase64) {
+        throw new Error('Government ID and Selfie are required for Tier 2');
+    }
+
+    const updateData: any = {
+      tier: 'Tier 2',
+      limit: 500000,
+      kycStatus: 'Verified (Level 2)',
+    };
+    if (data.bvnOrNin) {
+      updateData.bvn = data.bvnOrNin; // or NIN depending on type, simplified here
     }
 
     const user = await prisma.user.update({
       where: { id: userId },
-      data: {
-        tier: 'Tier 2',
-        limit: 500000,
-        kycStatus: 'Verified (Level 2)',
-        bvn: data.bvn
-      }
+      data: updateData
     });
 
-    return { success: true, tier: user.tier, limit: user.limit, message: 'Tier 2 KYC (BVN) Successful' };
+    return { success: true, tier: user.tier, message: 'Tier 2 KYC Successful (ID & Selfie)' };
   }
 
   async upgradeTier3(userId: string, data: any) {
@@ -148,6 +189,10 @@ export class KycService {
       // Simulation mode
       await new Promise(res => setTimeout(res, 2000));
       if (!data.documentImageBase64) throw new Error("Document image is required");
+    }
+
+    if (!data.passportPhotoBase64) {
+      throw new Error("Passport photo is required for Tier 3");
     }
 
     const user = await prisma.user.update({

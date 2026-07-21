@@ -3,11 +3,14 @@ import { kycService } from './kyc.service.js';
 import { z } from 'zod';
 
 const tier1Schema = z.object({
-  nin: z.string().length(11, 'NIN must be 11 digits'),
+  documentNumber: z.string().length(11, 'NIN or BVN must be 11 digits'),
+  documentType: z.enum(['NIN', 'BVN']).default('NIN'),
 });
 
 const tier2Schema = z.object({
-  bvn: z.string().length(11, 'BVN must be 11 digits'),
+  bvnOrNin: z.string().length(11, 'BVN/NIN must be 11 digits').optional(),
+  governmentIdBase64: z.string().min(1, 'Government ID is required'),
+  selfieBase64: z.string().min(1, 'Selfie/Face Verification is required'),
 });
 
 const tier3Schema = z.object({
@@ -15,7 +18,8 @@ const tier3Schema = z.object({
   city: z.string(),
   state: z.string(),
   documentType: z.enum(['UTILITY_BILL', 'BANK_STATEMENT', 'TENANCY_AGREEMENT']),
-  documentImageBase64: z.string(), // In a real app this would be a file upload
+  documentImageBase64: z.string(),
+  passportPhotoBase64: z.string().min(1, 'Passport photo is required'),
 });
 
 export async function kycRoutes(fastify: FastifyInstance) {
