@@ -131,29 +131,6 @@ export class SolanaService {
           });
           return true;
      }
-
-     async getSOLBalance(publicKey: string): Promise<number> {
-          const pubKey = new PublicKey(publicKey);
-          const balance = await this.connection.getBalance(pubKey);
-          return balance / LAMPORTS_PER_SOL;
-     }
-
-     async transferNative(fromPrivateKey: string, toWalletAddress: string, amount: number): Promise<string> {
-          const secretKey = bs58.decode(fromPrivateKey);
-          const fromKeypair = Keypair.fromSecretKey(secretKey);
-          const toPubKey = new PublicKey(toWalletAddress);
-
-          const tx = new Transaction().add(
-               SystemProgram.transfer({
-                    fromPubkey: fromKeypair.publicKey,
-                    toPubkey: toPubKey,
-                    lamports: amount * LAMPORTS_PER_SOL,
-               })
-          );
-
-          const signature = await sendAndConfirmTransaction(this.connection, tx, [fromKeypair]);
-          return signature;
-     }
 }
 
 export const solanaService = new SolanaService();

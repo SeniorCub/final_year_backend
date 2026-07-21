@@ -1,5 +1,6 @@
 import prisma from '../database/prisma.js';
 import { solanaService } from '../blockchain/solana.service.js';
+import { ethereumService } from '../blockchain/ethereum.service.js';
 import { walletService } from '../wallet/wallet.service.js';
 import { LedgerEntryType, Prisma } from '@prisma/client';
 import dotenv from 'dotenv';
