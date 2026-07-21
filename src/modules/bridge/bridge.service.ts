@@ -196,34 +196,55 @@ export class BridgeService {
                cryptoAmount = chain === 'ethereum' ? amount / 4500000 : amount / 225000;
           }
 
+          let deductSimulatedEth = 0;
+          let deductSimulatedSol = 0;
+
           // 2. Verify on-chain balance and transfer
           if (chain === 'solana') {
-               const solBalance = await solanaService.getSOLBalance(wallet.solPublicKey);
-               if (solBalance < cryptoAmount) throw new Error(`Insufficient Solana balance. You need ${cryptoAmount.toFixed(4)} SOL but have ${solBalance.toFixed(4)} SOL`);
+               const onChainSol = await solanaService.getSOLBalance(wallet.solPublicKey);
+               const simulatedSol = wallet.simulatedSolBalance.toNumber();
+               const totalSolBalance = onChainSol + simulatedSol;
 
-               if (process.env.SYSTEM_WALLET_PUBLIC_KEY) {
-                    const decKey = await walletService.getDecryptedSolPrivateKey(userId);
-                    signature = await solanaService.transferNative(
-                         decKey,
-                         process.env.SYSTEM_WALLET_PUBLIC_KEY,
-                         cryptoAmount
-                    );
+               if (totalSolBalance < cryptoAmount) throw new Error(`Insufficient Solana balance. You need ${cryptoAmount.toFixed(4)} SOL but have ${totalSolBalance.toFixed(4)} SOL`);
+
+               if (onChainSol < cryptoAmount) {
+                    deductSimulatedSol = cryptoAmount - onChainSol;
+                    if (onChainSol > 0 && process.env.SYSTEM_WALLET_PUBLIC_KEY) {
+                         const decKey = await walletService.getDecryptedSolPrivateKey(userId);
+                         signature = await solanaService.transferNative(decKey, process.env.SYSTEM_WALLET_PUBLIC_KEY, onChainSol);
+                    } else {
+                         await new Promise(res => setTimeout(res, 2000));
+                    }
                } else {
-                    await new Promise(res => setTimeout(res, 2000));
+                    if (process.env.SYSTEM_WALLET_PUBLIC_KEY) {
+                         const decKey = await walletService.getDecryptedSolPrivateKey(userId);
+                         signature = await solanaService.transferNative(decKey, process.env.SYSTEM_WALLET_PUBLIC_KEY, cryptoAmount);
+                    } else {
+                         await new Promise(res => setTimeout(res, 2000));
+                    }
                }
           } else if (chain === 'ethereum') {
-               const ethBalance = parseFloat(await ethereumService.getBalance(wallet.ethPublicKey));
-               if (ethBalance < cryptoAmount) throw new Error(`Insufficient Ethereum balance. You need ${cryptoAmount.toFixed(4)} ETH but have ${ethBalance.toFixed(4)} ETH`);
+               const onChainEth = parseFloat(await ethereumService.getBalance(wallet.ethPublicKey));
+               const simulatedEth = wallet.simulatedEthBalance.toNumber();
+               const totalEthBalance = onChainEth + simulatedEth;
 
-               if (process.env.ETH_SYSTEM_WALLET_PUBLIC_KEY) {
-                    const decKey = await walletService.getDecryptedEthPrivateKey(userId);
-                    signature = await ethereumService.transferNative(
-                         decKey,
-                         process.env.ETH_SYSTEM_WALLET_PUBLIC_KEY,
-                         cryptoAmount
-                    );
+               if (totalEthBalance < cryptoAmount) throw new Error(`Insufficient Ethereum balance. You need ${cryptoAmount.toFixed(4)} ETH but have ${totalEthBalance.toFixed(4)} ETH`);
+
+               if (onChainEth < cryptoAmount) {
+                    deductSimulatedEth = cryptoAmount - onChainEth;
+                    if (onChainEth > 0 && process.env.ETH_SYSTEM_WALLET_PUBLIC_KEY) {
+                         const decKey = await walletService.getDecryptedEthPrivateKey(userId);
+                         signature = await ethereumService.transferNative(decKey, process.env.ETH_SYSTEM_WALLET_PUBLIC_KEY, onChainEth);
+                    } else {
+                         await new Promise(res => setTimeout(res, 2000));
+                    }
                } else {
-                    await new Promise(res => setTimeout(res, 2000));
+                    if (process.env.ETH_SYSTEM_WALLET_PUBLIC_KEY) {
+                         const decKey = await walletService.getDecryptedEthPrivateKey(userId);
+                         signature = await ethereumService.transferNative(decKey, process.env.ETH_SYSTEM_WALLET_PUBLIC_KEY, cryptoAmount);
+                    } else {
+                         await new Promise(res => setTimeout(res, 2000));
+                    }
                }
           }
 
@@ -233,6 +254,20 @@ export class BridgeService {
                     where: { userId },
                     data: { balance: { increment: amount } }
                });
+               
+               if (deductSimulatedEth > 0) {
+                    await tx.wallet.update({
+                         where: { userId },
+                         data: { simulatedEthBalance: { decrement: deductSimulatedEth } }
+                    });
+               }
+               if (deductSimulatedSol > 0) {
+                    await tx.wallet.update({
+                         where: { userId },
+                         data: { simulatedSolBalance: { decrement: deductSimulatedSol } }
+                    });
+               }
+
                await tx.ledgerEntry.create({
                     data: {
                          userId,
