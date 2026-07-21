@@ -103,18 +103,10 @@ export class EthereumService {
 
     async getBalance(address: string): Promise<string> {
         try {
-            const apikey = process.env.ETHERSCAN_API_KEY || 'YourApiKeyToken';
-            // Use Etherscan API to get the native ETH balance
-            const response = await fetch(`https://api-sepolia.etherscan.io/api?module=account&action=balance&address=${address}&tag=latest&apikey=${apikey}`);
-            const data = await response.json();
-            
-            if (data && data.status === '1') {
-                return this.web3.utils.fromWei(data.result, 'ether');
-            }
-            console.warn(`[EthereumService] Etherscan API returned status ${data?.status}:`, data?.message);
-            return '0';
+            const balanceWei = await this.web3.eth.getBalance(address);
+            return this.web3.utils.fromWei(balanceWei.toString(), 'ether');
         } catch (error: any) {
-            console.warn(`[EthereumService] Failed to get balance from Etherscan for ${address}:`, error.message);
+            console.warn(`[EthereumService] Failed to get native balance for ${address}:`, error.message);
             return '0';
         }
     }
@@ -128,6 +120,21 @@ export class EthereumService {
             console.warn(`[EthereumService] Failed to check if account created for ${address}:`, error.message);
             return false;
         }
+    }
+
+    async confirmTransaction(hash: string) {
+        let retries = 10;
+        while (retries > 0) {
+            const receipt = await this.web3.eth.getTransactionReceipt(hash);
+            if (receipt && receipt.status) {
+                return true;
+            } else if (receipt && !receipt.status) {
+                return false;
+            }
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            retries--;
+        }
+        return false;
     }
 
     async broadcastTransaction(signedTx: string): Promise<string> {
@@ -206,6 +213,25 @@ export class EthereumService {
 
     async getCurrentBlock() {
         return Number(await this.web3.eth.getBlockNumber());
+    }
+
+    async transferNative(fromPrivateKey: string, toWalletAddress: string, amount: number): Promise<string> {
+        const account = this.web3.eth.accounts.privateKeyToAccount(fromPrivateKey.startsWith('0x') ? fromPrivateKey : '0x' + fromPrivateKey);
+        const amountWei = this.web3.utils.toWei(amount.toString(), 'ether');
+
+        const tx = {
+            from: account.address,
+            to: toWalletAddress,
+            value: amountWei,
+            gas: await this.web3.eth.estimateGas({ from: account.address, to: toWalletAddress, value: amountWei }),
+            gasPrice: await this.web3.eth.getGasPrice(),
+        };
+
+        const signedTx = await account.signTransaction(tx);
+        if (!signedTx.rawTransaction) throw new Error('Failed to sign transaction');
+
+        const receipt = await this.web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+        return receipt.transactionHash.toString();
     }
 }
 
