@@ -135,6 +135,93 @@ export class BridgeService {
      }
 
      /**
+      * Deposit from Blockchain Wallet to Bank
+      */
+     async depositFromBlockchain(userId: string, amount: number, chain: 'ethereum' | 'solana') {
+          const user = await prisma.user.findUnique({ where: { id: userId } });
+          if (!user) throw new Error('User not found');
+
+          const account = await prisma.account.findUnique({ where: { userId } });
+          const currentBalance = account?.balance.toNumber() || 0;
+
+          if (currentBalance + amount > user.limit.toNumber()) {
+               throw new Error(`KYC maximum balance limit of ₦${user.limit.toNumber().toLocaleString()} exceeded. Please upgrade your KYC tier.`);
+          }
+
+          const wallet = await prisma.wallet.findUnique({ where: { userId } });
+          if (!wallet) throw new Error('User blockchain wallet not found');
+
+          let signature = 'mock_signature_' + Date.now();
+          const reference = `BCD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+          // 1. Fetch live prices to determine crypto amount
+          let cryptoAmount = 0;
+          try {
+               const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum,solana&vs_currencies=ngn');
+               const data = await res.json();
+               if (chain === 'ethereum') {
+                    cryptoAmount = amount / (data?.ethereum?.ngn || 4500000);
+               } else {
+                    cryptoAmount = amount / (data?.solana?.ngn || 225000);
+               }
+          } catch (e) {
+               // fallback to default if rate limit
+               cryptoAmount = chain === 'ethereum' ? amount / 4500000 : amount / 225000;
+          }
+
+          // 2. Verify on-chain balance and transfer
+          if (chain === 'solana') {
+               const solBalance = await solanaService.getSOLBalance(wallet.solPublicKey);
+               if (solBalance < cryptoAmount) throw new Error(`Insufficient Solana balance. You need ${cryptoAmount.toFixed(4)} SOL but have ${solBalance.toFixed(4)} SOL`);
+
+               if (process.env.SYSTEM_WALLET_PUBLIC_KEY) {
+                    const decKey = await walletService.getDecryptedSolPrivateKey(userId);
+                    signature = await solanaService.transferNative(
+                         decKey,
+                         process.env.SYSTEM_WALLET_PUBLIC_KEY,
+                         cryptoAmount
+                    );
+               } else {
+                    await new Promise(res => setTimeout(res, 2000));
+               }
+          } else if (chain === 'ethereum') {
+               const ethBalance = parseFloat(await ethereumService.getBalance(wallet.ethPublicKey));
+               if (ethBalance < cryptoAmount) throw new Error(`Insufficient Ethereum balance. You need ${cryptoAmount.toFixed(4)} ETH but have ${ethBalance.toFixed(4)} ETH`);
+
+               if (process.env.ETH_SYSTEM_WALLET_PUBLIC_KEY) {
+                    const decKey = await walletService.getDecryptedEthPrivateKey(userId);
+                    signature = await ethereumService.transferNative(
+                         decKey,
+                         process.env.ETH_SYSTEM_WALLET_PUBLIC_KEY,
+                         cryptoAmount
+                    );
+               } else {
+                    await new Promise(res => setTimeout(res, 2000));
+               }
+          }
+
+          // 3. Create Ledger Entry & Update Balance
+          await prisma.$transaction(async (tx) => {
+               await tx.account.update({
+                    where: { userId },
+                    data: { balance: { increment: amount } }
+               });
+               await tx.ledgerEntry.create({
+                    data: {
+                         userId,
+                         type: LedgerEntryType.BLOCKCHAIN_DEPOSIT,
+                         amount,
+                         reference,
+                         status: 'COMPLETED',
+                         metadata: { chain, cryptoAmount, signature, exchangeRate: amount / cryptoAmount }
+                    }
+               });
+          });
+
+          return { success: true, reference, signature, message: `Successfully deposited ₦${amount.toLocaleString()}` };
+     }
+
+     /**
       * Sync Ethereum P2P Transfers to the Ledger
       */
      async syncEthereumTransfer(senderWallet: string, recipientWallet: string, amount: string, hash: string) {

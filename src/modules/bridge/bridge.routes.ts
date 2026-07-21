@@ -8,6 +8,11 @@ const withdrawSchema = z.object({
      chain: z.enum(['ethereum', 'solana']).optional()
 });
 
+const depositSchema = z.object({
+     amount: z.number().positive(),
+     chain: z.enum(['ethereum', 'solana'])
+});
+
 export async function bridgeRoutes(fastify: FastifyInstance) {
      fastify.addHook('preHandler', (fastify as any).authenticate);
 
@@ -33,6 +38,21 @@ export async function bridgeRoutes(fastify: FastifyInstance) {
 
           try {
                const result = await bridgeService.withdrawToBlockchain(userId, amount, targetAddress, chain);
+               return result;
+          } catch (error: any) {
+               return reply.code(400).send({ error: error.message });
+          }
+     });
+
+     /**
+      * Deposit Blockchain Native Crypto (ETH/SOL) to Bank Balance
+      */
+     fastify.post('/deposit', async (request, reply) => {
+          const userId = (request.user as any).userId;
+          const { amount, chain } = depositSchema.parse(request.body);
+
+          try {
+               const result = await bridgeService.depositFromBlockchain(userId, amount, chain);
                return result;
           } catch (error: any) {
                return reply.code(400).send({ error: error.message });
