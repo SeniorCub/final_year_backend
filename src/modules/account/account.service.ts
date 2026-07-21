@@ -32,11 +32,37 @@ export class AccountService {
           });
           if (!user) throw new Error('User not found');
 
+          // Determine Limits based on Tier
+          const tier = user.tier || 'Bronze';
+          let dailyLimit = 50000;
+          let maxBalance = 300000;
+
+          if (tier === 'Tier 1' || tier === 'Bronze') {
+               dailyLimit = 50000; maxBalance = 300000;
+          } else if (tier === 'Tier 2' || tier === 'Silver') {
+               dailyLimit = 200000; maxBalance = 500000;
+          } else if (tier === 'Tier 3' || tier === 'Gold' || tier === 'Fully Verified') {
+               dailyLimit = 5000000; maxBalance = Infinity;
+          }
+
+          // 1. Check Max Wallet Balance
           const account = await prisma.account.findUnique({ where: { userId } });
           const currentBalance = account?.balance.toNumber() || 0;
 
-          if (currentBalance + amount > user.limit.toNumber()) {
-               throw new Error(`KYC maximum balance limit of ₦${user.limit.toNumber().toLocaleString()} exceeded. Please upgrade your KYC tier.`);
+          if (currentBalance + amount > maxBalance) {
+               throw new Error(`KYC maximum wallet balance limit of ₦${maxBalance.toLocaleString()} exceeded for ${tier}. Please upgrade your KYC tier.`);
+          }
+
+          // 2. Check Daily Transaction Limit
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const dailyTx = await prisma.ledgerEntry.aggregate({
+               where: { userId, type: { in: ['DEPOSIT', 'BLOCKCHAIN_DEPOSIT'] }, createdAt: { gte: today } },
+               _sum: { amount: true }
+          });
+          const dailyTotal = dailyTx._sum.amount?.toNumber() || 0;
+          if (dailyTotal + amount > dailyLimit) {
+               throw new Error(`Daily KYC deposit limit of ₦${dailyLimit.toLocaleString()} exceeded for ${tier}. Please upgrade your KYC tier.`);
           }
 
           const reference = `PAYSTACK-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
