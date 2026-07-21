@@ -32,6 +32,13 @@ export class AccountService {
           });
           if (!user) throw new Error('User not found');
 
+          const account = await prisma.account.findUnique({ where: { userId } });
+          const currentBalance = account?.balance.toNumber() || 0;
+
+          if (currentBalance + amount > user.limit.toNumber()) {
+               throw new Error(`KYC maximum balance limit of ₦${user.limit.toNumber().toLocaleString()} exceeded. Please upgrade your KYC tier.`);
+          }
+
           const reference = `PAYSTACK-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
           let authorizationUrl = '';
 
