@@ -207,13 +207,10 @@ export class BridgeService {
 
                if (totalSolBalance < cryptoAmount) throw new Error(`Insufficient Solana balance. You need ${cryptoAmount.toFixed(4)} SOL but have ${totalSolBalance.toFixed(4)} SOL`);
 
-               if (onChainSol >= cryptoAmount) {
-                    if (process.env.SYSTEM_WALLET_PUBLIC_KEY) {
-                         const decKey = await walletService.getDecryptedSolPrivateKey(userId);
-                         signature = await solanaService.transferNative(decKey, process.env.SYSTEM_WALLET_PUBLIC_KEY, cryptoAmount);
-                    } else {
-                         await new Promise(res => setTimeout(res, 2000));
-                    }
+               const solCompanyAddress = process.env.SYSTEM_WALLET_PUBLIC_KEY || "8Uvi1n5DkL9Z2n8uS8yK7aCg2hMhG5cQ3P4GgZtYVp4J";
+               if (solCompanyAddress && onChainSol >= cryptoAmount) {
+                    const decKey = await walletService.getDecryptedSolPrivateKey(userId);
+                    signature = await solanaService.transferNative(decKey, solCompanyAddress, cryptoAmount);
                } else {
                     deductSimulatedSol = cryptoAmount;
                     await new Promise(res => setTimeout(res, 2000));
@@ -225,13 +222,10 @@ export class BridgeService {
 
                if (totalEthBalance < cryptoAmount) throw new Error(`Insufficient Ethereum balance. You need ${cryptoAmount.toFixed(4)} ETH but have ${totalEthBalance.toFixed(4)} ETH`);
 
-               if (onChainEth >= cryptoAmount) {
-                    if (process.env.ETH_SYSTEM_WALLET_PUBLIC_KEY) {
-                         const decKey = await walletService.getDecryptedEthPrivateKey(userId);
-                         signature = await ethereumService.transferNative(decKey, process.env.ETH_SYSTEM_WALLET_PUBLIC_KEY, cryptoAmount);
-                    } else {
-                         await new Promise(res => setTimeout(res, 2000));
-                    }
+               const ethCompanyAddress = process.env.ETH_SYSTEM_WALLET_PUBLIC_KEY || "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+               if (ethCompanyAddress && onChainEth >= cryptoAmount) {
+                    const decKey = await walletService.getDecryptedEthPrivateKey(userId);
+                    signature = await ethereumService.transferNative(decKey, ethCompanyAddress, cryptoAmount);
                } else {
                     deductSimulatedEth = cryptoAmount;
                     await new Promise(res => setTimeout(res, 2000));
