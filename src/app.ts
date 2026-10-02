@@ -134,4 +134,9 @@ const start = async () => {
      }
 };
 
-start();
+if (!process.env.VERCEL) {
+     start();
+}
+
+export { fastify, start };
+export default fastify;
