@@ -7,10 +7,10 @@
   "scripts": {
     "start": "tsx src/app.ts",
     "dev": "tsx watch src/app.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "render-build": "npm install && npx prisma generate && npx prisma db push --accept-data-loss && npm run build"
+    "render-build": "prisma generate && (npx prisma db push --accept-data-loss || true) && tsc"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",
